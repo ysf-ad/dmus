@@ -1,3 +1,13 @@
 # _config.yml
-keep_files:
-  - assets
+exclude:
+  - assets/css
+
+sass:
+  sass_dir: assets
+  style: compressed
+
+defaults:
+  - scope:
+      path: "assets/**/*.css"
+    values:
+      sitemap: false
