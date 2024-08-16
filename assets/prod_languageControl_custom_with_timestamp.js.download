@@ -1,0 +1,6 @@
+(function(){
+  var script = document.createElement('script');
+  script.setAttribute('type','text/javascript');
+  script.setAttribute('src','https://cdn.shopifycdn.net/s/files/1/0617/5385/2157/t/1/assets/prod_languageControl_custom.js?t=' + new Date().getTime());
+  document.getElementsByTagName('head')[0].appendChild(script);
+})()

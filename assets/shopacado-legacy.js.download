@@ -1,0 +1,1213 @@
+
+function hasFlag(flag){
+    return window.appikonDiscount.settings.flags[flag] == true
+}
+
+if (window.shopacadoLegacy) {
+    window.appikonDiscount = {};
+    window.appikonDiscount.settings = {
+        "debug": window.shopacadoLegacy.debug || false,
+        "dp": {
+            "installed": window.shopacadoLegacy.installed,
+            "vd_table_type": "default",
+            "vd_product_message": "Buy at discounted prices"
+        },
+        "delay_mobile_refresh_cart": 2,
+        "delay_refresh_cart": 0.5,
+        "discount_method": window.shopacadoLegacy.discount_mode,
+        "hide_paypal": true,
+        "show_discount_code": window.shopacadoLegacy.show_discount_code,
+        "avoid_cart_quantity_adjustment": window.shopacadoLegacy.avoid_cart_quantity_adjustment,
+        "show_notification_bar": true,
+        "show_cart_notification_bar": window.shopacadoLegacy.show_cart_notification_bar,
+        "show_product_notification_bar": window.shopacadoLegacy.show_product_notification_bar,
+        "turn_off_agree_checkbox": false,
+        "calculation_note": "Please wait while we calculate your cart totals",
+        "plus_minus_qty_selector": "",
+        "checkout_selector": window.shopacadoLegacy.checkout_selector,
+        "drawer_cart_selector": window.shopacadoLegacy.drawer_cart_selector,
+        "drawer_cart_product_title_selector": window.shopacadoLegacy.drawer_cart_product_title_selector,
+        "drawer_cart_line_price_selector": window.shopacadoLegacy.drawer_cart_line_price_selector,
+        "drawer_cart_unit_price_selector": window.shopacadoLegacy.drawer_cart_unit_price_selector,
+        "drawer_cart_sub_total_selector": window.shopacadoLegacy.drawer_cart_sub_total_selector,
+        "terms_selector": window.shopacadoLegacy.terms_selector,
+        "regular_cart_product_title_selector": window.shopacadoLegacy.regular_cart_product_title_selector,
+        "regular_cart_line_price_selector": window.shopacadoLegacy.regular_cart_line_price_selector,
+        "regular_cart_sub_total_selector": window.shopacadoLegacy.regular_cart_sub_total_selector,
+        "regular_cart_unit_price_selector": window.shopacadoLegacy.regular_cart_unit_price_selector,
+        "is_dynamic_insertion": window.shopacadoLegacy.is_dynamic_insertion,
+        "listen_to_ajax_cart_events_strategy": window.shopacadoLegacy.listen_to_ajax_cart_events_strategy,
+        "draft_order_invoice_load_delay": 500,
+        "flags": {
+            "hide_buy_it_now_setting": false,
+            "refresh_on_qty_plush_minus": false,
+            "refresh_on_qty_change_hard": false,
+            "avoid_default_qty_input_event_change": false,
+            "notify_about_disocunt_calculations": false,
+            "disable_checkout_button": false,
+            "quantities_refresh_over_submit": window.shopacadoLegacy.quantities_refresh_over_submit,
+            "enable_quantity_change_reload": true
+        },
+        "app_root_url": window.shopacadoLegacy.app_root_url,
+        "vd_placement_settings": window.shopacadoLegacy.vd_placement_settings,
+        "notification_placement_settings": window.shopacadoLegacy.notification_placement_settings,
+        "notification_cart_placement_settings": window.shopacadoLegacy.notification_cart_placement_settings,
+        "notification_bar_selector": null,
+        "shop" : window.shopacadoLegacy.shop,
+        "discount_code_settings" : window.shopacadoLegacy.discount_code_settings,
+        "use_compare_at_price" : window.shopacadoLegacy.use_compare_at_price,
+        "product_page_price_selector": window.shopacadoLegacy.product_page_price_selector,
+        "intercept_fetch_calls": window.shopacadoLegacy.intercept_fetch_calls,
+        "page_load_delay": window.shopacadoLegacy.page_load_delay
+    };
+    window.appikonDiscount.settings.global = {
+        "env": "production",
+        "appikonCheckoutSelector": "input[name='checkout'], button[name='checkout'], [href$='checkout'], input[name='goto_pp'], button[name='goto_pp'], input[name='goto_gc'], button[name='goto_gc'], .additional-checkout-button, .google-wallet-button-holder, .amazon-payments-pay-button, button.checkout-button",
+        "baAddToCartSelector": "#AddToCart-product-template, .product-atc-btn, .product-menu-button.product-menu-button-atc, .button-cart, .product-add, .add-to-cart input, .btn-addtocart, [name=add]",
+        "appikonPlusImageUrl": "//cdn.shopify.com/s/files/1/0194/1736/6592/t/1/assets/adp-plus_38x.png?18337618242689679898",
+        "headerSelector": "#shopify-section-header, main, div.content, section.main-content, div#content, section#content"
+    };
+    window.appikon.discount_method = window.appikonDiscount.settings.discount_method;
+    window.appikonResponseStore = {};
+    window.appikonResponseStore.cartJS = "";
+    window.appikonResponseStore.discountResponse = "";
+    window.appikon.money_format = window.shopacadoLegacy.money_format;
+
+    window.appikonDiscount.isAppikonProductPage = null != decodeURIComponent(window.location.pathname).match(/\/products\/(([a-zA-Z0-9]|[\-\.\_\~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[\ud83c\ud83d\ud83e][\ud000-\udfff]){1,})\/?/);
+    window.appikonDiscount.isAppikonCartPage = window.location.pathname === '/cart';
+
+    window.appikonDiscount.reloadCurrency = () => {
+        "object" == typeof Currency && "object" == typeof Currency.moneyFormats && "function" == typeof mlvedaload && mlvedaload();
+        
+        if(typeof ACSCurrency !== "undefined" && typeof ACSCurrency.moneyFormats !== "undefined") {mlvedaload();}
+
+        try {
+            "object" == typeof DoublyGlobalCurrency && "function" == typeof DoublyGlobalCurrency.convertAll && DoublyGlobalCurrency.convertAll(jQueryGrizzly("[name=doubly-currencies]").val())
+        } catch (t) {
+            console.log(t)
+        }
+    }
+
+    window.appikonDiscount.checkTermsAccepted = ($) => {
+        if (window.appikonDiscount.settings.turn_off_agree_checkbox) {
+            return true;
+        }
+
+        if (window.appikonDiscount.settings.terms_selector) {
+            let customSelectors = window.appikonDiscount.settings.terms_selector.split(',');
+            for (let i = 0; i < customSelectors.length; i++) {
+                let termsSelector = "input[type='checkbox']" + customSelectors[i];
+                let termsSelectorChecked = "input[type='checkbox']" + customSelectors[i] + ":checked";
+
+                if ($(termsSelector).length > 0 && $(termsSelectorChecked).length === 0) {
+                    return false;
+                }
+            }
+        } else {
+            let termsSelector = "input[type='checkbox']#agree";
+            let termsSelectorChecked = "input[type='checkbox']#agree:checked";
+
+            if ($(termsSelector).length > 0 && $(termsSelectorChecked).length === 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    window.appikonDiscount.DiscountedPricingCheckout = ($, t) => {
+        if (window.appikonDiscount.checkTermsAccepted($)) {
+            window.appikonDiscount.log("terms accepted!");
+            $(t.target).prop("disabled", "disabled");
+
+            window.appikon.action_type = "checkout";
+            var i = [],
+                    a = [];
+            $("[name^='attributes']").each(function () {
+                var t = $(this),
+                        e = $(this).attr("name"),
+                        n = {
+                            name: e = e.replace(/^attributes\[/i, "").replace(/\]$/i, ""),
+                            value: t.val()
+                        };
+                if ("" != n.value) switch (t[0].tagName.toLowerCase()) {
+                    case "input":
+                        "checkbox" == t.attr("type") ? t.is(":checked") && a.push(n) : a.push(n);
+                        break;
+                    default:
+                        a.push(n)
+                }
+            });
+            var r = "";
+            if (window.Shopify.locale) {
+                i.push("locale=" + window.Shopify.locale);
+            }
+            $("[name='note']").length && (r = $("[name='note']")[0].value), window.appikon.cart.note_attributes = a, window.appikon.cart.note = r, r.length && i.push("note=" + encodeURIComponent(r)), a.length && a.map(function (t) {
+                i.push("attributes" + encodeURIComponent("[" + t.name + "]") + "=" + encodeURIComponent(t.value))
+            }), $.ajax({
+                cache: !1,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                type: "POST",
+                url: window.appikonDiscount.settings.app_root_url,
+                data: JSON.stringify(window.appikon),
+                success: function (t) {
+                    t.invoice_url ? (i.length && (t.invoice_url += "?" + i.join("&")),
+                                        setTimeout(function () {
+                                            window.location.href = t.invoice_url
+                                        }, window.appikonDiscount.settings.draft_order_invoice_load_delay)
+                                    ) : (
+                                        t.invoice_url = "/checkout",
+                                        t.discount_code && (window.appikonDiscount.setCookie("adp-pr-id", t.pr_id, 14), i.push("discount=" + t.discount_code)),
+                                        i.length && (t.invoice_url += "?" + i.join("&")),
+                                        window.location.href = t.invoice_url
+                                    )
+                },
+                error: function (e) {
+                    console.log(e);
+                    window.location.href = "/checkout"
+                }
+            })
+        } else {
+            window.appikonDiscount.log("terms not accepted!");
+        }
+    }
+
+    window.appikonDiscount.checkoutEventHandler = ($, t) => {
+        window.appikonDiscount.log("checkout handler triggered");
+        t.preventDefault();
+        try {
+            t.stopImmediatePropagation();
+            window.appikonDiscount.DiscountedPricingCheckout($, t)
+        } catch (e) {
+            window.appikonDiscount.log("error occured in checkout handler...sending to regular checkout.");
+            console.error(e);
+            window.location = "/checkout"
+        }
+    }
+
+    window.appikonDiscount.addGlobalStyle = (t) => {
+        try {
+            var e = document.head || document.getElementsByTagName("head")[0],
+                    n = document.createElement("style");
+            n.innerHTML = t, n.type = "text/css", e.appendChild(n)
+        } catch (o) {}
+    }
+
+    window.appikonDiscount.addCheckoutEventHandlers = ($) => {
+        var checkoutSelectors = window.appikonDiscount.getCheckoutSelectors();
+
+        if (! window.appikonDiscount.checkoutClickListener) {
+            window.appikonDiscount.log("creating checkout click handler");
+            window.appikonDiscount.checkoutClickListener = (t) => window.appikonDiscount.checkoutEventHandler($, t);
+        } else {
+            window.appikonDiscount.log("checkout click handler already exists");
+        }
+
+        checkoutSelectors.forEach(function (t) {
+            var e = document.querySelectorAll(t);
+            if ("object" == typeof e && e) {
+                for (var n = 0; n < e.length; n++) {
+                    var o = e[n];
+                    if ("function" != typeof o.addEventListener) return;
+                    window.appikonDiscount.log("adding click handler to found element: " + t);
+                    o.addEventListener("click", window.appikonDiscount.checkoutClickListener, false);
+                }
+            }
+        });
+    }
+
+    window.appikonDiscount.removeCheckoutEventHandlers = ($) => {
+        var checkoutSelectors = window.appikonDiscount.getCheckoutSelectors();
+        checkoutSelectors.forEach(function (t) {
+            var e = document.querySelectorAll(t);
+            if ("object" == typeof e && e) {
+                for (var n = 0; n < e.length; n++) {
+                    var o = e[n];
+                    if ("function" != typeof o.addEventListener) return;
+                    if (window.appikonDiscount.checkoutClickListener) {
+                        o.removeEventListener("click", window.appikonDiscount.checkoutClickListener, false);
+                    }
+                }
+            }
+        });
+    }
+
+    window.appikonDiscount.showCartDiscounts = ($, t) => {
+        window.appikon.discounts = t;
+        
+        window.appikonDiscount.updateCartItems($, t.cart.items);
+
+        if ("string" == typeof t.discounted_price_html) {
+            if (window.appikonDiscount.settings.hide_paypal) {
+                $(".additional_checkout_buttons,.additional-checkout-button,.additional-checkout-buttons, .extra-checkout-buttons, .dynamic-checkout__content,.cart__additional_checkout, .cart-checkout-additional, #dynamic-checkout-cart").hide(), window.appikonDiscount.addGlobalStyle(".additional_checkout_buttons, .additional-checkout-button, .additional-checkout-buttons  {display:none !important;}");
+            }
+
+            if (t.positive_discount) {
+                window.appikonDiscount.displayCartTotals($, t);
+            }
+
+            if (t.zero_discount_only || 0 == window.appikon.cart.total_price) {
+                $('form[action*="/cart"]').append("<input type='hidden' value='1' name='attributes[adp_identifier]'>");
+                try {
+                    window.appikon.cart.attributes.adp_identifier = 1
+                } catch (o) {
+                }
+                // remove event checkout listeners if no discounts
+                window.appikonDiscount.removeCheckoutEventHandlers($);
+            } else {
+                window.appikonDiscount.addCheckoutEventHandlers($);
+            }
+            $(".wholesale-cart-total").css("font-weight", "bold");
+            // $("span.wholesale-original-cart-total").css("display", "block");
+        } else {
+            if (window.appikonDiscount.settings.use_compare_at_price === true) {
+                window.appikonDiscount.displayCartTotals($, t);
+                //$(".wholesale-cart-total").html("<span class=''>" + t.compare_at_price_html + "</span>");
+            } else {
+                $(".wholesale-cart-total").html("<span class=''>" + t.original_price_html + "</span>");
+            }
+            $("span.wholesale-original-cart-total").css("display", "none");
+            $(".wholesale-cart-total").css("font-weight", "normal");
+
+            // remove event checkout listeners if no discounts
+            window.appikonDiscount.removeCheckoutEventHandlers($);
+        }
+    }
+
+    window.appikonDiscount.showAppikonNotificatioBar = ($, notificationMessage, selector, placement) => {
+        if(notificationMessage && notificationMessage.trim()) {
+            var notificationBarElement = "<div id='appikon-notification-bar'><div id='appikon-close-notification'>X</div>" + notificationMessage.trim() + "</div>"
+            // Remove old notification
+            $('#appikon-notification-bar').remove()
+
+            if(selector) {
+                var selectorElement = $(selector).first();
+                if(selectorElement.length){
+                    "before" == placement.toLowerCase() ? selectorElement.before(notificationBarElement) : selectorElement.after(notificationBarElement)
+                }
+            } else {
+                window.appikonDiscount.settings.global.headerSelector.split(",").forEach(function (t) {
+                    t = $.trim(t)
+                    "#shopify-section-header" == t ? $(t).after(notificationBarElement) : "main" == t ? $(t).prepend(notificationBarElement) : $(t).before(notificationBarElement)
+                })
+            }
+
+            $("#appikon-notification-bar").length > 0 && $("#appikon-notification-bar").show()
+        }
+    }
+
+    window.appikonDiscount.showAppikonNotification = ($, notificationMessage) => {
+        // Show product page Notification
+        if(window.appikonDiscount.isAppikonProductPage && window.appikonDiscount.settings.show_product_notification_bar) {
+            window.appikonDiscount.showAppikonNotificatioBar($, notificationMessage,
+                window.appikonDiscount.settings.notification_placement_settings.final_selector,
+                window.appikonDiscount.settings.notification_placement_settings.placement)
+        }
+
+        if(window.appikonDiscount.isAppikonCartPage) {
+            if (window.appikonDiscount.settings.notification_cart_placement_settings.use_app_blocks) {
+                console.log("using app blocks for cart notification bar...");
+                $("span.shopacado-cart-notification-message").html(notificationMessage);
+                $("div.shopacado-cart-notification").removeClass("shopacado-hidden");
+            } else if (window.appikonDiscount.settings.show_cart_notification_bar) {
+                window.appikonDiscount.showAppikonNotificatioBar($, notificationMessage,
+                    window.appikonDiscount.settings.notification_cart_placement_settings.final_selector,
+                    window.appikonDiscount.settings.notification_cart_placement_settings.placement)
+            }
+        }
+    }
+
+    window.shopacadoLegacy.discount_table_code && eval(window.shopacadoLegacy.discount_table_code);
+
+    window.appikonDiscount.appikonDelegate = ($, discountResponse) => {
+        if (discountResponse.vol_rows) {
+            window.appikon.vol_rows = discountResponse.vol_rows;
+        }
+
+        if (window.appikonDiscount.showDiscountTable) {
+            window.appikonDiscount.showDiscountTable($, discountResponse);
+        }
+
+        var objectExists = function (t) {
+            return "object" == typeof t ? t : null
+        };
+        if (objectExists(discountResponse.discounts)) {
+            if(window.appikonDiscount.isAppikonProductPage && discountResponse.product_notification) {
+                window.appikonDiscount.showAppikonNotification($, discountResponse.product_notification);
+            } else if(window.appikonDiscount.isAppikonCartPage) {
+                if (window.appikonDiscount.settings.notification_cart_placement_settings.use_app_blocks) {
+                    if (discountResponse.app_block_notifications && discountResponse.app_block_notifications.length) {
+                        window.appikonDiscount.showAppikonNotification($, discountResponse.app_block_notifications[0]);
+                    }
+                } else if (discountResponse.notifications && discountResponse.notifications.length) {
+                    window.appikonDiscount.showAppikonNotification($, discountResponse.notifications[0]);
+                }
+            }
+
+            if (objectExists(discountResponse.discounts.cart) && objectExists(discountResponse.discounts.cart.items)) {
+                window.appikonDiscount.showCartDiscounts($, discountResponse.discounts);
+            }
+        }
+
+        // we check showDiscountTable here because if it doesn't exist, then they are using app blocks and we don't need to do this here.
+        if (window.appikonDiscount.showDiscountTable &&
+            discountResponse.product_lowest_price_message &&
+            window.appikonDiscount.settings.product_page_price_selector &&
+            window.appikonDiscount.settings.product_page_price_selector !== "") {
+            window.appikonDiscount.productLowestPriceMessage = discountResponse.product_lowest_price_message;
+            $(window.appikonDiscount.settings.product_page_price_selector).html("<span>" + discountResponse.product_lowest_price_message + "</span>");
+        }
+
+        window.appikonDiscount.reloadCurrency()
+
+        document.dispatchEvent(new CustomEvent("shopacado:discounts:update", {
+            bubbles: true,
+            detail: {
+                discountResponse
+            },
+        }));
+        
+        if (window.appikonDiscount.postDiscountHandlers) {
+            for (let i = 0; i < window.appikonDiscount.postDiscountHandlers.length; i++) {
+                window.appikonDiscount.postDiscountHandlers[i](discountResponse);
+            }
+        }
+    }
+
+    window.appikonDiscount.isCartChange = ($, newCart) => {
+        var isCartChange = false;
+
+        var oldCart = window.appikonResponseStore.cartJS;
+
+        var cartPropertiesToCompare = ["original_total_price", "total_discount", "total_weight", "item_count", "items_subtotal_price"];
+
+        $.each(cartPropertiesToCompare, function (i, prop) {
+            if (oldCart[prop] !== newCart[prop]) {
+                isCartChange = true;
+                return false; // break the loop
+            }
+        });
+
+        if(!isCartChange && oldCart.items.length !== newCart.items.length) {
+            isCartChange = true;
+        }
+
+        if(!isCartChange) {
+            $.each(oldCart.items, function(i, oldItem){
+                var newItem = newCart.items[i];
+                if(oldItem.id !== newItem.id || oldItem.quantity !== newItem.quantity) {
+                    isCartChange = true;
+                    return false; // break the loop
+                }
+            })
+        }
+
+        return isCartChange;
+    }
+
+    window.appikonDiscount.processCartData = ($, ajaxCartData) => {
+        if (window.appikonDiscount.isCartChange($, ajaxCartData)) {
+            window.appikonResponseStore.cartJS = ajaxCartData;
+            window.appikonDiscount.prepareAppikonDiscountRequestData($, ajaxCartData)
+        } else {
+            window.appikonDiscount.fillCartData($, false);
+        }
+    }
+
+    window.appikonDiscount.addCompareAtPrice = async ($, cart) => {
+        var totalCompareAtPrice = 0;
+        await Promise.all(cart.items.map(async (item) => {
+            $.ajax({
+                url: '/products/' + item.handle + '.js',
+                dataType: 'json',
+                async: false,
+                success: function(product){
+                    for (const variant of product.variants) {
+                        item["compare_at_price"] = item["price"];
+                        if (variant.id == item.variant_id && variant.compare_at_price != null) {
+                            item["compare_at_price"] = variant.compare_at_price;
+                            break;
+                        }
+                    };
+                    const compareAtLinePrice = item["compare_at_price"] * item["quantity"];
+                    totalCompareAtPrice += compareAtLinePrice;
+                    item["compare_at_line_price"] = compareAtLinePrice;
+                }
+            });
+        }));
+
+        cart.compare_at_total_price = totalCompareAtPrice;
+
+        return cart;
+    }
+
+    window.appikonDiscount.insertCartTitleSnippet = ($, productTitleSelector) => {
+
+        var isInserted = false;
+
+        if (!productTitleSelector) {
+            return isInserted;
+        }
+
+        var selectors = productTitleSelector.split(",");
+
+        $.each(selectors, function(index, selector) {
+            var elems = $(selector);
+
+            if (elems.length) {
+                var cart = window.appikon.cart;
+                elems.each(function (index) {
+                    if (index < cart.items.length && $(this).find(".appikon-cart-item-success-notes").length === 0) {
+
+                        $(this).html($(this).html() + "<span class='appikon-cart-item-success-notes' data-key='" + cart.items[index].key + "'></span><span class='appikon-cart-item-upsell-notes' data-key='" + cart.items[index].key + "'></span>");
+
+                        isInserted = true;
+                    }
+                });
+            }
+
+        })
+
+        return isInserted;
+    }
+
+    window.appikonDiscount.insertCartLinePriceSnippet = ($, cartLinePriceSelector) => {
+
+        var isInserted = false;
+
+        if (!cartLinePriceSelector) {
+            return isInserted;
+        }
+
+        var selectors = cartLinePriceSelector.split(",");
+
+        $.each(selectors, function(index, selector) {
+            var elems = $(selector);
+
+            if (elems.length) {
+                var cart = window.appikon.cart;
+                elems.each(function (index) {
+                    if (index < cart.items.length && $(this).find(".appikon-cart-item-line-price").length == 0) {
+                        $(this).html("<span class='appikon-cart-item-line-price' data-key='" + cart.items[index].key + "'>" +
+                                $(this).html() + "</span>");
+
+                        isInserted = true;
+                    }
+                });
+            }
+
+        })
+
+        return isInserted;
+    }
+
+    window.appikonDiscount.insertCartUnitPriceSnippet = ($, cartUnitPriceSelector) => {
+
+        var isInserted = false;
+
+        if (!cartUnitPriceSelector) {
+            return isInserted;
+        }
+
+        var selectors = cartUnitPriceSelector.split(",");
+
+        $.each(selectors, function(index, selector) {
+            var elems = $(selector);
+
+            if (elems.length) {
+                var cart = window.appikon.cart;
+                elems.each(function (index) {
+                    if (index < cart.items.length && $(this).find(".appikon-cart-item-unit-price").length == 0) {
+                        $(this).html("<span class='appikon-cart-item-unit-price' data-key='" + cart.items[index].key + "'>" + $(this).html() + "</span>");
+                    }
+                });
+            }
+
+        })
+
+        return isInserted;
+    }
+
+    window.appikonDiscount.insertCartSubTotalSnippet = ($, cartSubTotalSelector) => {
+
+        var isInserted = false;
+
+        if (cartSubTotalSelector) {
+            var selectors = cartSubTotalSelector.split(",");
+
+            $.each(selectors, function(index, selector) {
+                var elem = $(selector).eq(0);
+
+                if(elem && elem.length && elem.find(".wholesale-original-cart-total").length == 0) {
+                    elem.html("<span class='wholesale-original-cart-total'>" +
+                                "<span class='wholesale-original-price'>" + elem.html() + "</span>" +
+                                "</span>" +
+                                "<span class='wholesale-cart-total'></span>" +
+                                "<div class='additional-notes'>" +
+                                "<span class='wholesale-minimums-note'></span>" +
+                                "<span class='wholesale-extra-note'></span>" +
+                                "</div>");
+
+                    isInserted = true;
+                }
+
+            })
+
+        }
+
+        return isInserted;
+    }
+
+    window.appikonDiscount.insertCartSnippets = ($, cartType) => {
+        var productTitleInserted = null;
+        var linePriceInserted = null;
+        var subtotalInserted = null;
+        var unitPriceInserted = null;
+
+        if (cartType === 'DRAWER') {
+            productTitleInserted = window.appikonDiscount.insertCartTitleSnippet($, window.appikonDiscount.settings.drawer_cart_product_title_selector);
+            linePriceInserted = window.appikonDiscount.insertCartLinePriceSnippet($, window.appikonDiscount.settings.drawer_cart_line_price_selector);
+            unitPriceInserted = window.appikonDiscount.insertCartUnitPriceSnippet($, window.appikonDiscount.settings.drawer_cart_unit_price_selector);
+            subtotalInserted = window.appikonDiscount.insertCartSubTotalSnippet($, window.appikonDiscount.settings.drawer_cart_sub_total_selector);
+        } else if (cartType === 'REGULAR') {
+            productTitleInserted = window.appikonDiscount.insertCartTitleSnippet($, window.appikonDiscount.settings.regular_cart_product_title_selector);
+            linePriceInserted = window.appikonDiscount.insertCartLinePriceSnippet($, window.appikonDiscount.settings.regular_cart_line_price_selector);
+            unitPriceInserted = window.appikonDiscount.insertCartUnitPriceSnippet($, window.appikonDiscount.settings.regular_cart_unit_price_selector);
+            subtotalInserted = window.appikonDiscount.insertCartSubTotalSnippet($, window.appikonDiscount.settings.regular_cart_sub_total_selector);
+        }
+
+        return productTitleInserted || linePriceInserted || subtotalInserted || unitPriceInserted;
+    }
+
+    window.appikonDiscount.fillCartData = ($, forceFill) => {
+        setTimeout(function() {
+            if(window.appikonResponseStore.discountResponse) {
+                var drawerCartSnippets = window.appikonDiscount.insertCartSnippets($, "DRAWER");
+                var regularCartSnippets = false;
+                if (window.appikonDiscount.settings.is_dynamic_insertion) {
+                    regularCartSnippets = window.appikonDiscount.insertCartSnippets($, "REGULAR");
+                }
+
+                if(drawerCartSnippets || regularCartSnippets || forceFill == true) {
+                    window.appikonDiscount.appikonDelegate($, window.appikonResponseStore.discountResponse);
+                }
+            }
+        }, 400);
+    }
+
+    window.appikonDiscount.enableCheckoutButtons = ($) => {
+        var checkoutSelectors = window.appikonDiscount.getCheckoutSelectors();
+        $.each(checkoutSelectors, function(index, selector){
+            $(selector).prop('disabled', false);
+        });
+    }
+
+    window.appikonDiscount.disableCheckoutButtons = ($, timeout = null) => {
+        var checkoutSelectors = window.appikonDiscount.getCheckoutSelectors();
+        $.each(checkoutSelectors, function(index, selector){
+            $(selector).prop('disabled', true);
+        });
+
+        if (timeout) {
+            setTimeout(() => {
+                $.each(checkoutSelectors, function(index, selector){
+                    $(selector).prop('disabled', false);
+                });
+            }, timeout);
+        }
+    }
+
+    window.appikonDiscount.getCheckoutSelectors = () => {
+        var checkoutSelectors = window.appikonDiscount.settings.global.appikonCheckoutSelector.split(",");
+
+        if(window.appikonDiscount.settings.checkout_selector) {
+            window.appikonDiscount.settings.checkout_selector.split(",").forEach(function(selector){
+                checkoutSelectors.push(selector.trim());
+            });
+        }
+
+        return checkoutSelectors;
+    }
+
+    window.appikonDiscount.getAppikonDiscountData = ($) => {
+        if (window.appikonDiscount.settings.use_compare_at_price === true){
+            $.ajax({
+                cache: !1,
+                type: "GET",
+                url: "/cart.js",
+                dataType : "json"
+            }).done(async function(ajaxCartData) {
+                let cartWithCompareAt = await window.appikonDiscount.addCompareAtPrice($, ajaxCartData);
+                window.appikonDiscount.processCartData($, cartWithCompareAt);
+            }).fail(function(jqXHR, status, error) {
+                console.error("getAppikonDiscountData", error, jqXHR.responseText)
+            })
+
+        } else {
+            $.ajax({
+                cache: !1,
+                type: "GET",
+                url: "/cart.js",
+                dataType : "json"
+            }).done(function(ajaxCartData) {
+                window.appikonDiscount.processCartData($, ajaxCartData);
+            }).fail(function(jqXHR, status, error) {
+                console.error("getAppikonDiscountData", error, jqXHR.responseText);
+            })
+        }
+    }
+
+    window.appikonDiscount.prepareAppikonDiscountRequestData = ($, appikonDrawerCart) => {
+        window.appikon.cart = appikonDrawerCart;
+        window.appikon.adp_page = 'cart';
+
+        window.appikon.discounts = {};
+        window.appikon.cart_product_ids = [];
+
+        appikonDrawerCart.items.forEach(function(item){
+            var appikon_item = item;
+            ["product_title", "total_discount", "discounts", "grams", "vendor", "taxable", "gift_card", "url", "image", "featured_image", "requires_shipping", "product_type", "product_description", "variant_title", "variant_options"].map(function(k) {
+                delete appikon_item[k]
+            });
+
+            window.appikon.cart_product_ids.push(appikon_item.product_id);
+        });
+
+
+        if(window.appikon.cart.items.length > 0) {
+            for (let i in window.appikon.cart.items) {
+                if (window.shopacado.productCollections && window.shopacado.productCollections[window.appikon.cart.items[i].product_id]) {
+                    window.appikon.cart.items[i].collection_ids = window.shopacado.productCollections[window.appikon.cart.items[i].product_id];
+                } else {
+                    window.appikon.cart.items[i].collection_ids = null;
+                }
+            }
+
+            // disable checkout buttons
+            window.appikonDiscount.disableCheckoutButtons($);
+
+            // send request to discount api
+            var xhrAppikonDiscountRequest = $.ajax({
+                cache: !1,
+                type: "POST",
+                url: window.appikonDiscount.settings.app_root_url,
+                data: JSON.stringify(window.appikon),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8"
+            }).done(function(data) {
+
+                window.appikonResponseStore.discountResponse = data;
+
+                window.appikonDiscount.fillCartData($, true);
+                window.appikonDiscount.enableCheckoutButtons($);
+
+            }).fail(function(jqXHR, status, error) {
+                console.error("calculateAppikonDiscount", error, jqXHR.responseText)
+                window.appikonDiscount.enableCheckoutButtons($);
+            });
+        }
+    }
+
+    window.appikonDiscount.triggerDiscountCalculation = ($) => {
+        window.appikonDiscount.log("triggering discount calculation...");
+        if (window.appikonResponseStore.cartJS) {
+            window.appikonDiscount.prepareAppikonDiscountRequestData($, window.appikonResponseStore.cartJS);
+        } else {
+            window.appikonDiscount.getAppikonDiscountData($);
+        }
+    }
+
+    window.appikonDiscount.updateCartItems = ($, items) => {
+        for (var e = 0; e < items.length; e++) {
+            var n = items[e];
+
+            n.upsell_note = n.upsell_note ? n.upsell_note : "";
+            n.success_note = n.success_note ? n.success_note : "";
+
+            if (window.appikonDiscount.settings.use_compare_at_price === true) {
+                if (n.discounted_price < n.compare_at_price) {
+                    $(".appikon-cart-item-price[data-key='" + n.key + "']").html("<span class='original_price '>" + n.compare_at_price_format + "</span><span class='discounted_price '>" + n.discounted_price_format + "</span>");
+                    $(".appikon-cart-item-line-price[data-key='" + n.key + "']").html("<span class='original_price '>" + n.compare_at_line_price_format + "</span><span class='discounted_price '>" + n.discounted_line_price_format + "</span>");
+                    $(".appikon-cart-item-unit-price[data-key='" + n.key + "']").html("<span class='original_price '>" + n.compare_at_price_format + "</span><span class='discounted_price '>" + n.discounted_price_format + "</span>");
+                } else {
+                    $(".appikon-cart-item-price[data-key='" + n.key + "']").html("<span class='discounted_price appkion_original_price'>" + n.compare_at_price_format + "</span>");
+                    $(".appikon-cart-item-line-price[data-key='" + n.key + "']").html("<span class='discounted_price appkion_original_price'>" + n.compare_at_line_price_format + "</span>");
+                    $(".appikon-cart-item-unit-price[data-key='" + n.key + "']").html("<span class='discounted_price appkion_original_price'>" + n.compare_at_price_format + "</span>");
+                }
+            } else {
+                if (n.discounted_price < n.original_price) {
+                    $(".appikon-cart-item-price[data-key='" + n.key + "']").html("<span class='original_price '>" + n.original_price_format + "</span><span class='discounted_price '>" + n.discounted_price_format + "</span>");
+                    $(".appikon-cart-item-line-price[data-key='" + n.key + "']").html("<span class='original_price '>" + n.original_line_price_format + "</span><span class='discounted_price '>" + n.discounted_line_price_format + "</span>");
+                    $(".appikon-cart-item-unit-price[data-key='" + n.key + "']").html("<span class='original_price '>" + n.original_price_format + "</span><span class='discounted_price '>" + n.discounted_price_format + "</span>");
+                } else {
+                    $(".appikon-cart-item-price[data-key='" + n.key + "']").html("<span class='discounted_price appkion_original_price'>" + n.original_price_format + "</span>");
+                    $(".appikon-cart-item-line-price[data-key='" + n.key + "']").html("<span class='discounted_price appkion_original_price'>" + n.original_line_price_format + "</span>");
+                    $(".appikon-cart-item-unit-price[data-key='" + n.key + "']").html("<span class='discounted_price appkion_original_price'>" + n.original_price_format + "</span>");
+                }
+            }
+
+            $(".appikon-cart-item-upsell-notes[data-key='" + n.key + "']").html(n.upsell_note);
+            $(".appikon-cart-item-success-notes[data-key='" + n.key + "']").html(n.success_note);
+        }
+    };
+
+    window.appikonDiscount.displayCartTotals = ($, t) => {
+        $(".wholesale-original-cart-total span.wholesale-original-price").length > 0 ? $(".wholesale-original-cart-total span.wholesale-original-price").css("text-decoration", "line-through") : $(".wholesale-original-cart-total").css("text-decoration", "line-through");
+        $(".wholesale-original-cart-total").show()
+
+        if (window.appikonDiscount.settings.use_compare_at_price === true) {
+            $("span.wholesale-original-price").html(t.compare_at_price_html);
+        } else {
+            $("span.wholesale-original-price").html(t.original_price_html);
+        }
+
+        if (t.discounted_price_html) {
+            $(".wholesale-cart-total").html("<span class=''>" + t.discounted_price_html + "</span>");
+        } else {
+            $(".wholesale-cart-total").html("<span class=''>" + t.original_price_html + "</span>");
+        }
+        var e = "";
+        if (t.summary_item_html) {
+            e = t.summary_item_html;
+        }
+
+        $(".subtotal .cart_savings.sale").hide();
+        $(".wholesale-cart-total").prepend("<span class='appikon-messages'><div id='appikon-summary-item'>" + e + "</div><div id='appikon-discount-item'></div></span>");
+        if (window.appikonDiscount.settings.show_discount_code && t.total_discount > 0) {
+            $('.appikon-discounts-wrapper').remove();
+
+            var discountCodePlacementSelectors = window.appikonDiscount.settings.discount_code_settings.inputPlacementSelector.split(',');
+            discountCodePlacementSelectors.forEach((selector, index, array) => {
+                let identifier = "appikon-discount-code-" + index;
+                let discountCodeWrapper = "<div class='appikon-discounts-wrapper'>" +
+                                                "<input type='text' id='" + identifier + "' placeholder='" + window.shopacadoLegacy.discount_code_placeholder_text + "'>" +
+                                                "<button data-identifier='" + identifier + "' class='apply-appikon-discount btn btn--secondary'>" + window.shopacadoLegacy.discount_code_apply_button + "</button>" +
+                                            "</div>"
+
+                if (window.appikonDiscount.settings.discount_code_settings.inputPlacementPosition === "BEFORE") {
+                    $(selector).before(discountCodeWrapper);
+                } else if (window.appikonDiscount.settings.discount_code_settings.inputPlacementPosition === "AFTER") {
+                    $(selector).after(discountCodeWrapper);
+                } else if (window.appikonDiscount.settings.discount_code_settings.inputPlacementPosition === "PREPEND") {
+                    $(selector).prepend(discountCodeWrapper);
+                } else if (window.appikonDiscount.settings.discount_code_settings.inputPlacementPosition === "APPEND") {
+                    $(selector).append(discountCodeWrapper);
+                } else if (window.appikonDiscount.settings.discount_code_settings.inputPlacementPosition === "REPLACE") {
+                    $(selector).after(discountCodeWrapper);
+                    $(selector).hide();
+                }
+            });
+
+            if (window.appikon.discount_code) {
+                $(".appikon-discounts-wrapper").hide();
+                $("div[id=appikon-discount-item]").html('<button id="appikon-remove-discount-code" type="button">X</button>' + t.discount_item_html);
+
+                document.querySelectorAll("#appikon-remove-discount-code").forEach(item => {
+                    item.addEventListener('click', event => {
+                        window.appikonDiscount.deleteCookie("appikon_discount_" + window.appikonDiscount.settings.shop);
+                        delete window.appikon.discount_code;
+                        window.appikonDiscount.triggerDiscountCalculation($);
+                    });
+                });
+            } else {
+                $(".appikon-discounts-wrapper").show();
+            }
+
+        }
+
+        $(".wholesale-cart-total span").css("text-decoration", "none");
+        window.appikonDiscount.reloadCurrency();
+    };
+
+    window.appikonDiscount.deleteCookie = (t) => {
+        var o = new Date;
+        o.setTime(o.getTime() - 1000);
+        var i = "expires=" + o.toUTCString();
+        document.cookie = t + "=; " + i + "; path=/;"
+    }
+
+    window.appikonDiscount.setCookie = (t, e, n) => {
+        var o = new Date;
+        o.setTime(o.getTime() + 24 * n * 60 * 60 * 1e3);
+        var i = "expires=" + o.toUTCString();
+        document.cookie = t + "=" + e + "; " + i + "; path=/;"
+    }
+
+    window.appikonDiscount.setCookieMinutes = (t, e, m) => {
+        var o = new Date;
+        o.setTime(o.getTime() + m * 60000);
+        var i = "expires=" + o.toUTCString();
+        document.cookie = t + "=" + e + "; " + i + "; path=/;"
+    }
+
+    window.appikonDiscount.setCookieSession = (t, e) => {
+        document.cookie = t + "=" + e + "; path=/;"
+    }
+
+    window.appikonDiscount.getCookie = (t) => {
+        for (var e = t + "=", n = document.cookie.split(";"), o = 0; o < n.length; o++) {
+            for (var i = n[o];
+                    " " == i.charAt(0);) i = i.substring(1);
+            if (0 == i.indexOf(e)) return i.substring(e.length, i.length)
+        }
+        return ""
+    }
+
+    window.appikonDiscount.log = (msg) => {
+        if (window.appikonDiscount.settings.debug) {
+            console.log("SHOPACADO DEBUG2: " + msg);
+        }
+    }
+
+    // custom JS settings overrides
+    window.shopacadoLegacy.custom_js_settings && eval(window.shopacadoLegacy.custom_js_settings);
+
+    function getUrlParam(paramName) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(paramName);
+    }
+
+    const testOfferParam = getUrlParam('shopacadoTestToken');
+    const testOfferName = getUrlParam('shopacadoTestName');
+
+    ! function (window, document) {
+        "use strict";
+
+        if (testOfferParam) {
+            window.appikonDiscount.setCookieSession('shopacado-test-offer-token', testOfferParam);
+            window.appikonDiscount.setCookieSession('shopacado-test-offer-name', testOfferName);
+
+            let uri = window.location.toString();
+            if (uri.indexOf("?") > 0) {
+                let clean_uri = uri.substring(0, uri.indexOf("?"));
+                window.history.replaceState({}, document.title, clean_uri);
+            }
+        }
+
+        function isMobileBrowser() {
+            let t = !1;
+            try {
+                (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(navigator.userAgent.substr(0, 4))) && (t = !0)
+            } catch (e) {}
+            return t
+        }
+
+        function reqJquery(t) {
+            if ("undefined" == typeof jQuery || !jQuery || "undefined" == typeof jQuery.ajax || 1 === parseInt(jQuery.fn.jquery) && parseFloat(jQuery.fn.jquery.replace(/^1\./, "")) < 10) {
+                window.appikonDiscount.log("jquery not found. loading jquery from: " + window.shopacadoLegacy.jquery_url);
+                let e = document.getElementsByTagName("head")[0],
+                        n = document.createElement("script");
+                n.src = ("https:" == document.location.protocol ? "https://" : "http://") + window.shopacadoLegacy.jquery_url, n.type = "text/javascript", n.onload = n.onreadystatechange = function () {
+                    n.readyState ? "complete" !== n.readyState && "loaded" !== n.readyState || (n.onreadystatechange = null, t(jQuery.noConflict(!0))) : t(jQuery.noConflict(!0))
+                }, e.appendChild(n)
+            } else {
+                window.appikonDiscount.log("jquery already loaded on site");
+                t(jQuery);
+            }
+        }
+
+        if (-1 !== document.location.search.indexOf("clear_cookies=1")) {
+            window.appikonDiscount.setCookie("adp-skip-ids", "");
+            window.appikonDiscount.setCookie("cart", "");
+        }
+
+        reqJquery(function ($) {
+            checkForTestOffer();
+
+            function notifyCalculationsInProgress() {
+                return hasFlag("notify_about_disocunt_calculations") && (hasFlag("disable_checkout_button") ? (checkoutBtn.attr("disabled", !0).val("Please wait").text("Please wait").css("border-color", originalBorder).css("background-color", originalBackground), setTimeout(enableCheckoutButton, 4e3)) : window.appikonDiscount.isAppikonCartPage && window.appikonDiscount.showAppikonNotification($, window.appikonDiscount.settings.calculation_note, {})), !0
+            }
+
+            function hideCalculationsInProgressNote() {
+                return hasFlag("notify_about_disocunt_calculations") && (hasFlag("disable_checkout_button") ? enableCheckoutButton() : $("#appikon-notification-bar").text() == window.appikonDiscount.settings.calculation_note + "X" && $("#appikon-notification-bar").fadeOut("slow")), !0
+            }
+
+            function getRefreshDelayValue() {
+                let t = "";
+                return t = isMobileBrowser() ? window.appikonDiscount.settings.delay_mobile_refresh_cart : window.appikonDiscount.settings.delay_refresh_cart, 1e3 * parseFloat(t)
+            }
+
+            function checkForTestOffer() {
+                window.appikon.test_offer_token = window.appikonDiscount.getCookie('shopacado-test-offer-token');
+                window.appikon.test_offer_name = window.appikonDiscount.getCookie('shopacado-test-offer-name');
+
+                if (window.appikon.test_offer_token && window.appikon.test_offer_token != "") {
+                    showTestOfferNotice();
+                }
+            }
+
+            function showTestOfferNotice() {
+                let noticeHtml = `
+                    <div id="shopacado-banner">
+                        <div id="shopacado-banner-content">
+                            Testing Offer: ` + window.appikon.test_offer_name + `
+                            <button id="shopacado-stop-test-offer">Stop Testing</button>
+                        </div>
+                    </div>
+                `;
+                $("#shopacado-banner").remove();
+                $("body").prepend(noticeHtml);
+                $("body").addClass("push-down");
+                $("#shopacado-stop-test-offer").click( function () {
+                    removeTestOfferNotice();
+                });
+            }
+
+            function removeTestOfferNotice() {
+                $("#shopacado-banner").remove();
+                $("body").removeClass("push-down");
+                window.appikonDiscount.deleteCookie("shopacado-test-offer-token");
+                window.appikonDiscount.deleteCookie("shopacado-test-offer-name");
+                delete window.appikon.test_offer_token;
+                delete window.appikon.test_offer_name;
+            }
+
+            window.appikonDiscount.calculateDiscounts = () => window.appikonDiscount.getAppikonDiscountData($);
+
+            function refreshAppikonData() {
+                window.appikonDiscount.getAppikonDiscountData($);
+            }
+
+            function handleCartRequests(url) {
+
+                let isCartRequestProcessed = true;
+
+                if ((url.includes('/cart.js')
+                    || url.includes('/cart.json')
+                    || url.includes('/cart/add')
+                    || url.includes('/cart/update')
+                    || (window.appikonDiscount.settings.is_dynamic_insertion && url.includes('/cart/change'))
+                    || url.includes('/cart/clear')
+                    || url.endsWith('/cart')
+                    || url.includes('/cart?'))
+                    && !url.includes('/cart?view=appikon.json')) {
+
+                    if (url.includes('/cart/add') || url.endsWith('/cart') || url.includes('/cart?') ) {
+                        $.ajax({
+                            cache: !1,
+                            type: "GET",
+                            url: "/cart.js",
+                            dataType: "json"
+                        }).done(function (ajaxCartData) {
+                            //window.appikonDiscount.processCartData($, ajaxCartData);
+                        }).fail(function (jqXHR, status, error) {
+                            console.error(error)
+                        })
+                    } else {
+                        isCartRequestProcessed = false;
+                    }
+                }
+
+                return isCartRequestProcessed;
+
+            }
+
+            let appikonCookieCode = window.appikonDiscount.getCookie("appikon_discount_" + window.appikonDiscount.settings.shop);
+            appikonCookieCode && (window.appikon.discount_code = appikonCookieCode);
+
+            if (hasFlag("disable_checkout_button")) {
+                let checkoutBtn = $(window.appikonDiscount.settings.global.appikonCheckoutSelector);
+                let originalCheckoutContent = checkoutBtn.val() || checkoutBtn.html();
+                let originalBorder = checkoutBtn.css("border-color");
+                let originalBackground = checkoutBtn.css("background-color");
+                let enableCheckoutButton = function () {
+                    checkoutBtn.html(originalCheckoutContent).val(originalCheckoutContent).removeAttr("disabled").removeAttr("border-color").removeAttr("background-color")
+                };
+            }
+            if (window.appikonDiscount.isAppikonCartPage) {
+                let skipIds = window.appikonDiscount.getCookie("adp-skip-ids");
+                skipIds && (window.appikon.skip_ids = skipIds)
+            }
+
+            function loadProductPageApi($) {
+                window.appikon.adp_page = 'product';
+                $.ajax({
+                    cache: !1,
+                    type: "POST",
+                    url: window.appikonDiscount.settings.app_root_url,
+                    data: JSON.stringify(window.appikon),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (t) {
+                        window.appikonDiscount.appikonDelegate($, t);
+                    }
+                });
+            }
+            window.appikonDiscount.loadProductPageApi = () => loadProductPageApi($);
+
+            function continuePageLoad() {
+                $(document).ready(function () {
+                    if(window.appikonDiscount.settings.dp.installed) {
+                        if (window.appikonDiscount.settings.page_load_delay) {
+                            setTimeout(refreshAppikonData, window.appikonDiscount.settings.page_load_delay);
+                        } else {
+                            refreshAppikonData();
+                        }
+
+                        if (window.appikonDiscount.settings.listen_to_ajax_cart_events_strategy) {
+                            // Intercept AJAX requests
+                            let origOpen = window.XMLHttpRequest.prototype.open;
+                            window.XMLHttpRequest.prototype.open = function() {
+                                this.addEventListener('load', async function() {
+                                    let url = this.responseURL;
+                                    if(!handleCartRequests(url)) {
+                                        let rText = null;
+                                        try {
+                                            if (this.responseType === "blob") {
+                                                console.log("response type is blob...");
+                                                const b = new Blob([this.response], { type: "application/json" });
+                                                rText = await b.text();
+                                            }
+                                        } catch (err) {
+                                            console.log(err);
+                                        }
+
+                                        if (rText === null) { rText = this.responseText }
+
+                                        let ajaxCartData = JSON.parse(rText);
+                                        if (window.appikonDiscount.settings.use_compare_at_price === true) {
+                                            let cartWithCompareAt = await window.appikonDiscount.addCompareAtPrice($, ajaxCartData);
+                                            window.appikonDiscount.processCartData($, cartWithCompareAt);
+                                        } else {
+                                            window.appikonDiscount.processCartData($, ajaxCartData);
+                                        }
+                                    }
+                                });
+                                origOpen.apply(this, arguments);
+                            };
+
+                            // Intercept fetch requests
+                            const originalFetch = window.fetch;
+                            window.fetch = function() {
+                                return new Promise((resolve, reject) => {
+                                    originalFetch.apply(this, arguments)
+                                            .then((response) => {
+                                                let url = response.url;
+
+                                                if(!handleCartRequests(url)) {
+
+                                                    $.ajax({
+                                                        cache: !1,
+                                                        type: "GET",
+                                                        url: "/cart.js",
+                                                        dataType: "json"
+                                                    })
+                                                    if (window.appikonDiscount.settings.intercept_fetch_calls) {
+                                                        response.clone().json().then(ajaxCartData  => {
+                                                            window.appikonDiscount.processCartData($, ajaxCartData);
+                                                        });
+                                                    }
+                                                }
+
+                                                resolve(response);
+                                            })
+                                            .catch((error) => {
+                                                reject(error);
+                                            })
+                                });
+                            }
+
+                        } else {
+                            let appikonCallRepeater = setInterval(refreshAppikonData,1000);
+                        }
+                    }
+                });
+
+                // using the showDiscountTable to check if they are using app blocks. it will not be defined if they are.
+                window.appikonDiscount.showDiscountTable && window.appikon.adp_page && window.appikon.adp_page === 'product' && window.appikonDiscount.settings.dp.installed > 0 && loadProductPageApi($), setTimeout(function () {
+                    "function" == typeof ga && ga(function (t) {
+                        window.gaclientId = t.get("clientId")
+                    })
+                }, 1e3), hasFlag("refresh_on_qty_plush_minus") && ($(document).on("click", window.appikonDiscount.settings.plus_minus_qty_selector, function () {
+                    let t = this;
+                    window.appikonDiscount.isAppikonCartPage && setTimeout(function () {
+                        $(t).parents('form[action*="/cart"]').submit()
+                    }, 500)
+                }), hasFlag("refresh_on_qty_change_hard") && (window.appikonDiscount.cartSubmit = function () {
+                    window.appikonDiscount.isAppikonCartPage && setTimeout(function () {
+                        $('form[action*="/cart"]').submit()
+                    }, 500)
+                }, $(document).ready(function () {
+                    setTimeout(function () {
+                        let t, e = document.querySelectorAll(window.appikonDiscount.settings.plus_minus_qty_selector);
+                        for (t = 0; t < e.length; t++) e[t].setAttribute("onclick", "window.appikonDiscount.cartSubmit();")
+                    }, 1200)
+
+
+                })));
+
+                if (window.appikonDiscount.isAppikonCartPage) {
+                    let debutEditBtnExists = $("div.cart__edit button.btn.cart__edit--active:visible").length > 0;
+                    let qtyInputEvent = debutEditBtnExists ? "" : "input ";
+
+                    $(document).on(qtyInputEvent + "change", "input.appikon-quantity, input[name^='updates['], input[id^='updates_'], input[id^='Updates_']", function (t) {
+                        let e = this;
+                        t.preventDefault(), "" != $.trim($(this).val()) && (setTimeout(function () {
+                            if (hasFlag("enable_quantity_change_reload")) {
+                                hasFlag("quantities_refresh_over_submit") ? window.location.reload() : $(e).parents('form[action*="/cart"]').submit()
+                            }
+                        }, getRefreshDelayValue()))
+                    });
+                
+                    $(document).on("click", "td.cart-qty span.icon-plus, td.cart-qty span.icon-minus", function (t) {
+                        t.preventDefault(), $(this).parents('form[action*="/cart"]').submit()
+                    });
+                    
+                    !window.appikonDiscount.settings.is_dynamic_insertion && $(document).ajaxSuccess(function (t, e, n) {
+                        n && "/cart/change.js" == n.url && window.location.reload()
+                    });
+                    
+                    if (1 != hasFlag("avoid_default_qty_input_event_change")) {
+                        setTimeout(function () {
+                            $(".js-qty__adjust").off("click")
+                        }, 500);
+                        
+                        $(document).on("click", "div.js-qty .js-qty__adjust", function (t) {
+                            if(!window.appikonDiscount.settings.avoid_cart_quantity_adjustment) {
+                                t.preventDefault();
+                                let e = parseInt($(this).parents("div.js-qty").find("input").val());
+                                if ($(this).hasClass("js-qty__adjust--plus")) var n = e + 1;
+                                else n = e - 1;
+                                $(this).parents("div.js-qty").find("input").val(n).change()
+                            } else {
+                                $(this).parents("div.js-qty").find("input").change()
+                            }
+                        });
+                    }
+                }
+                
+                $(document).on("click", "button.apply-appikon-discount", function (t) {
+                    t.preventDefault();
+                    let identifier = $(t.target).attr('data-identifier');
+                    let discount_code_entered = $("input[id=" + identifier + "]:visible").val().trim();
+                    window.appikonDiscount.setCookieMinutes("appikon_discount_" + window.appikonDiscount.settings.shop, discount_code_entered, 5);
+                    window.appikon.discount_code = discount_code_entered;
+                    window.appikonDiscount.triggerDiscountCalculation($);
+                });
+                
+                $(document).on("click", "div#appikon-close-notification", function (t) {
+                    t.preventDefault(), window.appikonDiscount.setCookie("appikon_notifications_closed", 1, .01), $("#appikon-notification-bar").slideUp("slow")
+                });
+                
+                $(document).on("click", ".appikon-variants-container select.adp-variants", function () {
+                    $(this).children("option").length < 1 && alert("All item variants are out of stock")
+                });
+            }
+
+            window.appikon.multicurrency = {};
+            if (window.Shopify && window.Shopify.currency) {
+                window.appikon.multicurrency.currency = window.Shopify.currency.active;
+                window.appikon.multicurrency.rate = window.Shopify.currency.rate;
+                window.appikon.multicurrency.locale = window.Shopify.locale;
+                window.appikon.multicurrency.country = window.Shopify.country;
+            }
+
+            window.shopacadoLegacy.multicurrency_code && eval(window.shopacadoLegacy.multicurrency_code);
+
+            window.shopacadoLegacy.custom_js && eval(window.shopacadoLegacy.custom_js);
+        });
+    }(window, document);
+} else {
+    console.log("shopacado legacy data missing...not loading shopacado.");
+}

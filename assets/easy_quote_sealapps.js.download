@@ -1,0 +1,376 @@
+(function(){let shopId="";if(ShopifyAnalytics.lib==null||ShopifyAnalytics.lib==""||ShopifyAnalytics.lib==null?shopId=JSON.parse(document.querySelectorAll("#shopify-features")[0].outerText).shopId:shopId=ShopifyAnalytics.lib.config.Trekkie.defaultAttributes.shopId,Shopify.theme.id===120385306678&&shopId===6722715711&&location.href.indexOf("search")!==-1&&document.querySelectorAll(".product-block .content_price").forEach(i=>i.style.display="none"),window.ShopifyAnalytics.meta.page.pageType!=="product")return;let debug=!1,currentVariant=JSON.parse(document.querySelector("#quote_product_selected_or_first_available_variant").textContent),productRid=JSON.parse(document.querySelector("#quote_product_current_id").textContent),variantData=JSON.parse(document.querySelector("#quote_product_variants").textContent),selectVariantId=currentVariant.id,baseUrl="http://quoteapi.sealapps.com/",productImg;if(!checkQuoteProduct())return;let buttonStyleUrl="getBtnFormStyle",btnValue="",btnColor="#333333",btnHoverColor="#444444",btnHoverBorder="",btnFontColor="#ffffff",btnBorder="1px solid transparent",btnFontSize="",btnHeight="",btnWidth="",btnFontWeight="",formLabelName="",formPlaceholdName="",formName="",formLabelEmail="",formPlaceholdEmail="",formEmail="",formLabelMessage="",formPlaceholdMessage="",formMessage="",formTitle="",submitText="",thankTitle="",thankContent="",thankContinue="",btnRadius="",btnMargin="",enable=0,adaptiveStatus=0,price=0,addCart=0,buyNow=0,requestQuote=0,customizeStatus=0,priceEls,addToCartEls,buyNowEls,quoteElement="",quoteBlockElement,quoteTyElement,formSubmitBtn,formShutBtn,quoteBtn,quoteBlockShutBtn,quoteTyShutBtn,quoteSubmitBtn,quoteSubmitSpinner,continueShoppingBtn,soldOutBtn,inputName,inputEmail,inputMessage,nameDiv,emailDiv,messageDiv,trueForms=[],exactForm,merchantEmail,localCustomerEmail,localCustomerName,payment_button_class=".shopify-payment-button",shopify_payment_button_parent=null,shopify_payment_button=null,formAction="https://"+document.domain+"/cart/add",customInsertSelector="",customStyle="";if(shopId)switch(shopId){case 6722715711:customInsertSelector=".more_info_block"}isExistParentAndUpdateElement();function getBtnStyle(btn){btn.tagName=="DIV"&&(btn=btn.querySelector("button"));let btnStyle=window.getComputedStyle(btn,null);btnStyle.width=="auto"||!btnStyle.width?btnWidth="":btnWidth=btnStyle.width,btnStyle.height=="auto"||!btnStyle.height?btnHeight="":btnHeight=btnStyle.height,btnRadius=btnStyle.borderRadius,btnFontColor=RGBtoHex(btnStyle.color),btnStyle.backgroundColor=="rgba(0, 0, 0, 0)"&&btn.style.backgroundColor==""?(btnColor="transparent",btnHoverColor="transparent",btnHoverBorder="4px"):(btnColor=RGBtoHex(btnStyle.backgroundColor),btnHoverColor=hexToRgba(btnColor).rgbaHover),btnFontSize=btnStyle.fontSize,btnMargin=btnStyle.margin,btnBorder=btnStyle.border,btnFontWeight=btnStyle.fontWeight}function getBtnForStyle(trueForm){let btnArr=trueForm.querySelectorAll("button"),iptArr=[...trueForm.querySelectorAll("input[type='submit']"),...trueForm.querySelectorAll("input[type='button']")],allArr=[...btnArr,...iptArr];if(allArr.length){for(let i=0;i<allArr.length;i++)if(allArr[i].type=="submit"&&allArr[i].name=="add"){soldOutBtn=allArr[i];break}if(!soldOutBtn){for(let i=0;i<allArr.length;i++)if(allArr[i].type=="submit"){soldOutBtn=allArr[i];break}}if(!soldOutBtn){for(let i=0;i<allArr.length;i++)if(allArr[i].disabled){soldOutBtn=allArr[i];break}}soldOutBtn||(soldOutBtn=allArr[0])}soldOutBtn&&getBtnStyle(soldOutBtn)}function getSubmitButton(trueForm){let iptSubArr=trueForm.querySelectorAll("input[type='submit']");if(iptSubArr.length!=0){shopify_payment_button=iptSubArr[0];return}let btnArr=trueForm.querySelectorAll("button");for(let j=0;j<btnArr.length;j++)if(btnArr[j].type=="submit"){shopify_payment_button=btnArr[j];break}}function isExistParentAndUpdateElement(){let forms=document.querySelectorAll("form");for(let i=0;i<forms.length;i++)forms[i].action==formAction&&trueForms.push(forms[i]);if(trueForms.length==1)shopify_payment_button=trueForms[0].querySelector(payment_button_class),exactForm=trueForms[0],shopify_payment_button||getSubmitButton(trueForms[0]),getBtnForStyle(trueForms[0]);else{for(let i=0;i<trueForms.length&&!soldOutBtn;i++){let formStyle=window.getComputedStyle(trueForms[i],null);if(!(formStyle.visibility!="visible"||formStyle.display=="none"||formStyle.height==0||formStyle.width==0)){if(exactForm=trueForms[i],getBtnForStyle(trueForms[i]),shopify_payment_button){let parent=shopify_payment_button.parentElement,parentStyle=window.getComputedStyle(parent,null);if(parentStyle.visibility=="visible"&&parentStyle.display!="none"&&parentStyle.height!=0&&parentStyle.width!=0)break}if(shopify_payment_button=trueForms[i].querySelector(payment_button_class),shopify_payment_button)break;{let iptSubArr=trueForms[i].querySelectorAll("input[type='submit']");if(iptSubArr.length!=0){shopify_payment_button=iptSubArr[0];break}let btnArr=trueForms[i].querySelectorAll("button");for(let j=0;j<btnArr.length;j++)if(btnArr[j].type=="submit"){shopify_payment_button=btnArr[j];break}}}}shopify_payment_button&&shopify_payment_button.parentElement&&(shopify_payment_button_parent=shopify_payment_button.parentElement)}}!soldOutBtn&&!exactForm&&!shopify_payment_button&&oldIsExistParentAndUpdateElement();function oldIsExistParentAndUpdateElement(){if(shopify_payment_button=document.querySelector(payment_button_class),shopify_payment_button==null){let btnArr=document.querySelectorAll("button");for(let i=0;i<btnArr.length;i++)if(btnArr[i].getAttribute("type")==="submit"&&btnArr[i].getAttribute("name")==="add"){soldOutBtn=btnArr[i],shopify_payment_button_parent=btnArr[i].parentElement;break}if(!shopify_payment_button_parent){for(let i=0;i<btnArr.length;i++)if(btnArr[i].getAttribute("type")==="submit"||btnArr[i].classList.contains("button-secondary")){soldOutBtn=btnArr[i],shopify_payment_button_parent=btnArr[i].parentElement;break}}}else shopify_payment_button_parent=document.querySelector(payment_button_class).parentElement;shopify_payment_button!=null&&!btnWidth&&(soldOutBtn=shopify_payment_button)}if(soldOutBtn==null&&!exactForm)return;{if(soldOutBtn){let parentStyle=window.getComputedStyle(soldOutBtn.parentElement,null);parentStyle.display=="flex"&&parentStyle.flexDirection=="row"&&parentStyle.flexWrap=="nowrap"&&(soldOutBtn.parentElement.style.flexWrap="wrap"),getBtnStyle(soldOutBtn)}let v1=variantData[0],productTitle="";if(v1.public_title==null?productTitle=v1.name:v1.public_title.length-3>0?productTitle=v1.name.substr(0,v1.name.length-v1.public_title.length-3):productTitle=productTitle=v1.name,getButtonStyle(shopId,buttonStyleUrl),enable)handleHide();else return;let mountElement=`<div id="product-restore-quote" style="margin-top: 10px;">
+                                <button type="button" class="easy-quote-button" style="text-align:center;margin-top:0; width:${btnWidth} ; height: ${btnHeight}; border-radius: ${btnRadius} ; font-size: ${btnFontSize};margin: ${btnMargin}; font-weight: ${btnFontWeight}; border:${btnBorder||"1px solid #eee"};">
+                                    ${btnValue}
+                                </button> 
+                            </div>`;soldOutBtn?(customInsertSelector!==""?document.querySelector(customInsertSelector).insertAdjacentHTML("beforebegin",mountElement):soldOutBtn.insertAdjacentHTML("afterend",mountElement),soldOutBtn.parentNode.style.display="",soldOutBtn.parentNode.parentNode.style.display=""):exactForm.insertAdjacentHTML("beforeend",mountElement),requestQuote!=1&&handleShowClick()}function checkFontVisibility(bgc,fontColor){return!(bgc===fontColor||bgc==="transparent"&&fontColor.toUpperCase()==="#FFFFFF")}function getButtonStyle(shopId2,btnurl){let params={shopId:shopId2},xmlHttp=new XMLHttpRequest,url=baseUrl+"api/v1/script/"+btnurl;xmlHttp.open("POST",url,!1),xmlHttp.setRequestHeader("Content-Type","application/json"),xmlHttp.send(JSON.stringify(params));let dataJson=JSON.parse(xmlHttp.responseText);if(dataJson.data!=null&&dataJson.code==200){let formData=dataJson.data.form,generalData=dataJson.data.general;enable=generalData.enable,price=generalData.price,addCart=generalData.add_cart,buyNow=generalData.buy_now,customizeStatus=generalData.customize_status,requestQuote=generalData.request_quote,merchantEmail=formData.user_email,adaptiveStatus=generalData.adaptive,adaptiveStatus||handleMatchByTheme(shopId2),customizeStatus==1&&(btnColor=generalData.button_color,btnFontColor=generalData.font_color,btnFontSize=generalData.font_size+"px",btnHeight=generalData.button_height+"px",btnWidth=generalData.button_width+"px",btnHoverColor=hexToRgba(btnColor,1).rgbaHover,btnBorder="1px solid transparent"),btnValue=generalData.button_value,formLabelName=formData.name_label,formPlaceholdName=formData.name_placeholder,formName=formData.name,formLabelEmail=formData.email_label,formPlaceholdEmail=formData.email_placeholder,formEmail=formData.email,formLabelMessage=formData.message_label,formPlaceholdMessage=formData.message_placeholder,formMessage=formData.message,formTitle=formData.form_title,submitText=formData.submit_value,thankTitle=formData.thank_title,thankContent=formData.thank_content,thankContinue=formData.thank_button,btnColor=="transparent"&&(btnBorder="1px solid #ddd"),importStyles()}}let setTimeoutHandle=null;reloadProductPage();function checkLocalStorage(){localStorage?.customerName&&(inputName.value=localStorage.customerName),localStorage?.customerEmail&&(inputEmail.value=localStorage.customerEmail)}function reloadProductPage(){if(window.location.href.indexOf("variant=")!==-1){clearTimeout(setTimeoutHandle);let window_url_variant=Number(window.location.href.split("variant=")[1]);if(selectVariantId!==window_url_variant){selectVariantId=window_url_variant;for(let i=0;i<variantData.length;i++)if(variantData[i].id===selectVariantId){currentVariant=variantData[i];break}createQuoteButton()}}setTimeoutHandle=setTimeout(()=>{reloadProductPage()},50)}function createQuoteButton(){if(buttonSwitch===0){let urlSuffix="selBtnStatus",params={shopId};httpRequest(urlSuffix,params),clearTimeout(setTimeoutHandle)}initQuoteElement()}function checkQuoteProduct(){const params={shopId,productRid};let xmlHttp=new XMLHttpRequest;const url=baseUrl+"api/v1/script/checkQuoteProduct";xmlHttp.open("POST",url,!1),xmlHttp.setRequestHeader("Content-Type","application/json"),xmlHttp.send(JSON.stringify(params));const result=JSON.parse(xmlHttp.responseText);return result.code===200?(productImg=result.data.imageUrl,debug&&console.log(result.data),result.data.isQuote):0}async function submitQuote(name,email,message,merchantEmail2){let url=baseUrl+"api/v1/script/customerQuoteMessage",params={shopId,productRid,variantRid:currentVariant.id,sku:currentVariant.sku,options:currentVariant.options,name,email,message,userEmail:merchantEmail2},res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json; charset=utf-8"},body:JSON.stringify(params)}),result=await res.json();res.ok!=!1?(localStorage.customerEmail=email,localStorage.customerName=name,quoteBlockElement.style.display="none",quoteTyElement.style.display="flex"):quoteSubmitBtn.innerHTML=submitText}function handleShowClick(){if(quoteBtn=document.querySelector("#product-restore-quote"),requestQuote==1){quoteBtn.style.display="none";return}else quoteBtn.style.display="flex";quoteBtn.addEventListener("click",function(){renderForm(),quoteElement.style.display="block",quoteBlockElement.style.display="flex"})}function handleEvent(){quoteElement=document.querySelector("#product-quote"),quoteBlockElement=quoteElement.querySelector(".quote-block"),quoteTyElement=quoteElement.querySelector(".quote-ty"),inputName=quoteBlockElement.querySelector(".quote-info-name input"),inputEmail=quoteBlockElement.querySelector(".quote-info-email input"),inputMessage=quoteBlockElement.querySelector(".quote-info-message textarea"),nameDiv=quoteBlockElement.querySelector(".quote-info-name"),emailDiv=quoteBlockElement.querySelector(".quote-info-email"),continueShoppingBtn=quoteTyElement.querySelector(".quote-finish-btn"),messageDiv=quoteBlockElement.querySelector(".quote-info-message"),emailError=document.querySelector(".input-email-error"),messageError=document.querySelector(".input-message-error"),checkLocalStorage(),inputEmail.addEventListener("blur",function(e){checkEmailAddress(e.target.value)?emailError.style.display="none":emailError.style.display="flex"}),inputMessage.addEventListener("blur",function(e){e.target.value?messageError.style.display="none":messageError.style.display="block"}),quoteBlockBtn=document.querySelector(".quote-block .quote-shut"),quoteBlockBtn.addEventListener("click",function(){quoteElement.style.display="none",quoteBlockElement.style.display="flex"}),quoteTyShutBtn=quoteElement.querySelector(".quote-ty .quote-shut"),quoteTyShutBtn.addEventListener("click",function(){quoteTyElement.style.display="none",quoteElement.style.display="none"}),quoteSubmitBtn=document.querySelector(".quote-form-submit button"),quoteSubmitBtn.addEventListener("click",function(e){if(e.preventDefault(),!inputMessage.value||!inputEmail.value){inputMessage.value||(messageError.style.display="block"),inputEmail.value||(emailError.style.display="flex");return}messageError.style.display="none",emailError.style.display="none",quoteSubmitBtn.innerHTML=`
+            <svg class="submit-spinner" fill="${btnFontColor}" t="1636169786393" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2394" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><defs><style type="text/css"></style></defs><path d="M300.576 796.576q0 30.272-21.44 51.712t-51.712 21.44q-29.728 0-51.424-21.728t-21.728-51.424q0-30.272 21.44-51.712t51.712-21.44 51.712 21.44 21.44 51.712zM585.152 914.272q0 30.272-21.44 51.712t-51.712 21.44-51.712-21.44-21.44-51.712 21.44-51.712 51.712-21.44 51.712 21.44 21.44 51.712zM182.848 512q0 30.272-21.44 51.712t-51.712 21.44-51.712-21.44-21.44-51.712 21.44-51.712 51.712-21.44 51.712 21.44 21.44 51.712zM869.728 796.576q0 29.728-21.728 51.424t-51.424 21.728q-30.272 0-51.712-21.44t-21.44-51.712 21.44-51.712 51.712-21.44 51.712 21.44 21.44 51.712zM318.848 227.424q0 37.728-26.848 64.576t-64.576 26.848-64.576-26.848-26.848-64.576 26.848-64.576 64.576-26.848 64.576 26.848 26.848 64.576zM987.424 512q0 30.272-21.44 51.712t-51.712 21.44-51.712-21.44-21.44-51.712 21.44-51.712 51.712-21.44 51.712 21.44 21.44 51.712zM621.728 109.728q0 45.728-32 77.728t-77.728 32-77.728-32-32-77.728 32-77.728 77.728-32 77.728 32 32 77.728zM924.576 227.424q0 53.152-37.728 90.56t-90.272 37.44q-53.152 0-90.56-37.44t-37.44-90.56q0-52.576 37.44-90.272t90.56-37.728q52.576 0 90.272 37.728t37.728 90.272z" p-id="2395"></path></svg>
+            `,submitQuote(inputName.value,inputEmail.value,inputMessage.value,merchantEmail)}),continueShoppingBtn.addEventListener("click",function(){quoteTyElement.style.display="none",quoteElement.style.display="none"})}function renderForm(){let formHtml=`
+                    <div id="product-quote">
+                        <div class="quote-mask"></div>
+                        <div class="quote-block">
+                            <div class="quote-shut">
+                                <svg data-v-3444016c="" viewBox="0 0 20 20" focusable="false" aria-hidden="true" class="Polaris-Icon__Svg"><path data-v-3444016c="" d="m11.414 10 4.293-4.293a.999.999 0 1 0-1.414-1.414L10 8.586 5.707 4.293a.999.999 0 1 0-1.414 1.414L8.586 10l-4.293 4.293a.999.999 0 1 0 1.414 1.414L10 11.414l4.293 4.293a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414L11.414 10z"></path></svg>
+                            </div>
+                            <div class="quote-header">
+                                ${formTitle}
+                            </div>
+                            <div class="quote-product-block">
+                                <div class="quote-product-image">
+                                    <img src="${productImg}" alt="">
+                                </div>
+                                <div class="quote-product-info">
+                                    <div class="quote-product-title">${currentVariant.name}</div>
+                                    <div class="quote-product-variant">
+                                    ${currentVariant.title?.toLowerCase()==="default title"?"":currentVariant.title}
+                                    </div>
+                                    <div class="quote-product-sku">${currentVariant.sku}</div>
+                                </div>
+                            </div>
+                            <div class="quote-info-form">
+                                <form action="" method="post">
+                                    <div class="quote-info-name">
+                                        <div class="quote-info-label">
+                                            ${formLabelName}:
+                                        </div>
+                                        <div class="quote-info-input">
+                                        <input type="text" placeholder="${formPlaceholdName}" value="">
+                                        </div>
+                                    </div>
+                                    <div class="quote-info-email">
+                                        <div class="quote-info-label">
+                                        ${formLabelEmail}:
+                                        </div>
+                                        <div class="email-info-input">
+                                            <div class="quote-info-input">
+                                                <input type="email" autocomplete="email" placeholder="${formPlaceholdEmail}" >
+                                            </div>
+                                        </div>
+                                        <!-- \u90AE\u4EF6\u683C\u5F0F\u9519\u8BEF\u7684\u63D0\u793A -->
+                                        <div class="input-email-error" style="display: none;">
+                                        <div class="email-error-icon">
+                                                    <svg fill="#d72c0d" viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false" aria-hidden="true"><path d="M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zM9 9a1 1 0 0 0 2 0V7a1 1 0 1 0-2 0v2zm0 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"></path></svg>
+                                            </div>
+                                            <div class="email-error-hint">
+                                           <!-- \u4E4B\u540E\u53EF\u4EE5\u5728\u8FD9\u91CC\u586B\u6587\u5B57 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="quote-info-message">
+                                        <div class="quote-info-label">
+                                        ${formLabelMessage}:
+                                        </div>
+                                        <div class="quote-info-input">
+                                        <textarea name="" id="" placeholder="${formPlaceholdMessage}">${formMessage}</textarea>
+                                        </div>
+                                        <div class="input-message-error">
+                                            <svg fill="#d72c0d" viewBox="0 0 20 20" class="info-needed-icon" focusable="false" aria-hidden="true" style="
+                                                width: 20px;
+                                                height: 20px;
+                                            "><path d="M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zM9 9a1 1 0 0 0 2 0V7a1 1 0 1 0-2 0v2zm0 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"></path></svg>
+                                        </div>
+                                    </div>
+                                    <div class="quote-form-submit">
+                                        <button type="submit" style="border:${btnBorder||"1px solid #eee"};">
+                                        ${submitText}
+                                        </button>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+                        <div class="quote-ty">
+                            <div class="quote-shut">
+                                <svg data-v-3444016c="" viewBox="0 0 20 20" focusable="false" aria-hidden="true" class="Polaris-Icon__Svg"><path data-v-3444016c="" d="m11.414 10 4.293-4.293a.999.999 0 1 0-1.414-1.414L10 8.586 5.707 4.293a.999.999 0 1 0-1.414 1.414L8.586 10l-4.293 4.293a.999.999 0 1 0 1.414 1.414L10 11.414l4.293 4.293a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414L11.414 10z"></path></svg>
+                            </div>
+                            <div class="quote-header">
+                                ${thankTitle}
+                            </div>
+                            <div class="quote-ty-block">
+                                <div class="quote-ty-info">
+                                    ${thankContent}
+                                </div>
+                            </div>
+                            <div class="quote-ty-footer">
+                                <button style="border:${btnBorder||"1px solid #eee"}" class="quote-finish-btn">${thankContinue}</button>
+                            </div>
+                        </div>
+                    </div>`;document.querySelector("body").insertAdjacentHTML("afterbegin",formHtml),handleEvent()}function handleHideTimer(toggle,selector,els,ms=20,stopTimes=1e3){return new Promise((resolve,reject)=>{let times=0,thisDisplay;if(selector&&typeof selector!="string"){thisDisplay=window.getComputedStyle(selector,null).display,toggle==1?selector.style.display="none":selector.style.display=thisDisplay,resolve({code:200,msg:"success"});return}else{let timer=setInterval(()=>{if(els=document.querySelectorAll(selector),els.length){for(let i=0;i<els.length;i++)if(window.getComputedStyle(els[i],null).display!="none"){thisDisplay=window.getComputedStyle(els[i],null).display;break}if(toggle==1){const style=`
+                <style>
+                  ${selector} {
+                    display: none !important;
+                  }
+                </style>`;document.head.insertAdjacentHTML("beforeend",style);for(let i=0;i<els.length;i++)els[i].style.display="none"}else for(let i=0;i<els.length;i++)els[i].style.display=thisDisplay;resolve({code:200,msg:"success"}),clearInterval(timer),timer=null}else times>stopTimes&&(clearInterval(timer),timer=null),resolve({code:506,msg:"failed"});times++},ms)}})}function handleHide(){const priceSelector=".price, .product__price, .product-price__price, #ProductPrice, .product-single__price, .price-container, [class*=product__price], [class*=Price]",buyNowSelector="[class*=shopify-payment-button], .shopify-cleanslate button",atcSelector=".add-to-cart, [class*=AddToCart], [data-action*=data-action], [class*=add-to-cart], [aria-label*=cart], [data-add-to-cart]";handleHideTimer(price,priceSelector,priceEls).then(res=>{res.code!==200&&console.log("Select price failed")});let addCartPromise;soldOutBtn&&(addToCartEls=soldOutBtn),addCartPromise=handleHideTimer(addCart,atcSelector,addToCartEls),addCartPromise.then(res=>{res.code!==200&&console.log("Select add to cart failed")}),handleHideTimer(buyNow,buyNowSelector,buyNowEls).then(res=>{res.code!==200&&console.log("Select buy now failed")})}function handleMatchByTheme(shopId2){let params={shopId:shopId2,buttonColor:btnColor,fontColor:btnFontColor,fontSize:btnFontSize.slice(0,-2),buttonHeight:btnHeight.slice(0,-2),buttonWidth:btnWidth.slice(0,-2),adaptiveStatus:0},xmlHttp=new XMLHttpRequest,url=baseUrl+"api/v1/script/adaptiveButton";xmlHttp.open("POST",url,!1),xmlHttp.setRequestHeader("Content-Type","application/json"),xmlHttp.send(JSON.stringify(params));let dataJson=JSON.parse(xmlHttp.responseText)}function checkEmailAddress(val){return!!new RegExp(/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/).test(val)}function hexToRgba(hex,opacity){let red=parseInt("0x"+hex.slice(1,3)),green=parseInt("0x"+hex.slice(3,5)),blue=parseInt("0x"+hex.slice(5,7)),redHover=red-20>0?red-20:red,greenHover=green-20>0?green-20:green,blueHover=blue-20>0?blue-20:blue,RGBA=`rgba(${red}, ${green}, ${blue}, ${opacity})`,RGBAHover=`rgba(${redHover}, ${greenHover}, ${blueHover}, ${opacity})`;return{red,green,blue,rgba:RGBA,rgbaHover:RGBAHover}}function RGBtoHex(value){if(/rgba?/.test(value)){var array=value.split(",");if(array.length<3)return"";value="#";for(var i=0,color;color=array[i++];)if(i<4)color=parseInt(color.replace(/[^\d]/gi,""),10).toString(16),value+=color.length==1?"0"+color:color;else{color=color.replace(")","");var colorA=parseInt(color*255),colorAHex=colorA.toString(16);value+=colorAHex}value=value.toUpperCase()}return value}function importStyles(){const styles=`<style>
+        ${customStyle}
+            .easy-quote-button{
+                margin-top: 20px;
+                width: 100%;
+                height: 44px;
+                border-width: 0px;
+                font-size: 15px;
+                cursor: pointer;
+                letter-spacing: .1rem;
+                border-radius: 2px;
+                background-color: ${btnColor} ;
+                transition: background-color .2s ease-in-out;
+                border:${btnBorder};
+            }
+            .easy-quote-button:hover{
+                background-color: ${btnHoverColor};
+                border-width: ${btnHoverBorder};
+            }
+            .email-me-button:hover{
+               opacity: 0.8;
+            }
+            #product-restore-quote{
+                display: none;
+                justify-content: center;
+            }
+            #email-me-frame { 
+                display: none; 
+                position: fixed; 
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.2);
+                z-index: 9999999;
+            }
+            #email-me-frame .email-provider span{
+                color: blue;
+            }
+            /* \u73B0\u5728\u5F00\u59CB\u662F\u5F39\u7A97\u7684\u8BBE\u7F6E */
+            #product-quote{
+                display: none;
+            }
+            .quote-mask{
+                width: 100%;
+                height: 100%;
+                background-color: rgba(30, 30, 30, .3);
+                position: fixed;
+                z-index: 99999;
+            }
+            .quote-block, .quote-ty{
+                display: none;
+                width: 86%;
+                flex-direction:column;
+                justify-content:center;
+                min-width: 342px;
+                max-width: 580px;
+                position: fixed;
+                top: 50%;   
+                left: 50%;   
+                -webkit-transform: translate(-50%, -56%);   
+                -moz-transform: translate(-50%, -56%);   
+                -ms-transform: translate(-50%, -56%);   
+                -o-transform: translate(-50%, -56%);   
+                transform: translate(-50%, -56%);   
+                background-color: #fff;
+                border:1px solid #eee;
+                padding:0 20px;
+                font-size: 14px;
+                z-index:999999;
+                animation: fadeIn .15s linear;
+            }
+            .quote-ty{
+                min-height: auto;
+            }
+            .quote-shut{
+                width: 20px;
+                height: 20px;
+                position: absolute;
+                top:8px;
+                right:8px;
+                cursor: pointer;
+            }
+            .quote-shut svg{
+                width: 100%;
+                height: 100%;
+            }
+            .quote-header{
+                padding:20px;
+                font-size: 20px;
+                font-weight: 600;
+                text-align: center;            
+            }
+            .quote-ty .quote-header{
+                padding: 60px 0 30px 0;
+                font-size: 32px;
+            }
+            .quote-product-block{
+                display: flex;
+            }
+            .quote-product-image{
+                width:120px;
+                height:120px;
+            }
+            .quote-product-image img{
+                width: 100%;
+                height: 100%;
+            }
+            .quote-product-info{
+                font-size: 16px;
+                flex:1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                margin-left: 12px;
+            }
+            .quote-product-title{
+                text-overflow: ellipsis;
+                -webkit-line-clamp: 3;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .quote-product-variant, .quote-product-sku{
+                color: #ccc;
+            }
+            .quote-info-form{
+                padding:20px 0;
+            }
+            .quote-form-submit,
+            .quote-ty-footer{
+                display: flex;
+                justify-content: center;
+                padding:10px;
+            }
+            .submit-spinner{
+                width:22px;
+                height:22px;
+                animation: spin 1s infinite;
+            }
+            .quote-ty-footer{
+                padding: 30px 0 60px 0; 
+            }
+            .easy-quote-button, 
+            .quote-form-submit button,
+            .quote-ty-footer button{
+                color: ${checkFontVisibility(btnColor,btnFontColor)?btnFontColor:"#333333"};
+            }
+            .quote-form-submit button,
+            .quote-ty-footer button{
+                background-color: ${btnColor};
+                height: ${btnHeight}
+                width: ${btnWidth}
+                font-size: ${btnFontSize};
+                font-weight: 500;
+                padding:12px 60px;
+                cursor:pointer;
+                border:none;
+                display:inline-flex;
+                justify-content:center;
+                align-items:center;
+            }
+            .quote-form-submit button:hover{
+                background-color: ${btnHoverColor};
+            }
+            .quote-ty-footer button:hover{
+                background-color: ${btnHoverColor};
+            }
+            .quote-info-name,
+            .quote-info-email,
+            .quote-info-message{
+                display: flex;
+                align-items: center;
+                padding:12px 0;
+            }
+            .quote-info-name .quote-info-input,
+            .quote-info-email .quote-info-input,
+            .email-info-input{
+                max-width: 300px;
+                flex:1;
+                margin-left: 24px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            .email-info-input{
+                border:none;
+            }
+            .quote-info-label{
+                width: 20%;
+            }
+            .quote-info-input{
+                margin-left: 24px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            .quote-info-email .quote-info-input{
+                margin-left:0;
+            }
+            .quote-info-message .quote-info-input{
+                flex:1;
+            }
+            .quote-info-input input,
+            .quote-info-input textarea{
+                padding: 8px;
+                border: none;
+                height: 100%;
+                width: 100%;
+                resize:none;
+                outline: none;
+                box-shadow: none !important;
+                background-color: #ffffff;
+            }
+            .input-message-error{
+                display: none;
+            }
+            /* TY\u4E13\u5C5E */
+            .quote-ty{
+                max-height: 428px;
+            }
+            .quote-ty-info{
+                padding: 10px;
+                font-size: 16px;
+                font-weight: 500;
+            }
+            .quote-ty .quote-header,
+            .quote-ty-block,
+            .quote-ty-footer{
+                flex:1;
+                align-items:center;
+                text-align:center;
+            }
+            .quote-finish-btn{
+                padding:12px 36px;
+            }
+            .info-needed-icon{
+                margin-left:4px;
+            }
+            @keyframes fadeIn {
+                0%{
+                    opacity: .4;
+                }
+                100% {
+                    opacity: 1;
+                }
+            }
+            @keyframes spin {
+                0%{
+                    transform: rotate(0deg);
+                }
+                100%{
+                    transform: rotate(360deg);
+                }
+            }
+            .input-email-error{
+                display:flex;
+                align-items:center;
+            }
+            .email-error-icon{
+                margin-right:8px;
+                width: 20px;
+                height: 20px;
+                color: #d72c0d;
+            }
+            .email-error-hint{
+                color: #d72c0d;
+                font-size: 12px;
+            }
+            @media screen and (max-width: 350px) {
+                .quote-block{
+                    width: 98%;
+                    min-width: auto;
+                }
+            }
+            }</style>`;document.head.insertAdjacentHTML("beforeend",styles)}})();
+//# sourceMappingURL=/cdn/shop/t/7/assets/easy_quote_sealapps.js.map?v=98344077847867873881691515889

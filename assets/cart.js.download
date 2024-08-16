@@ -1,0 +1,586 @@
+(function() {
+  let activeVersion = "platform"
+  if (activeVersion !== "platform") {
+    return;
+  }
+
+  let integrationKey = "f5240c43-5a89-4b48-b2be-34e2a38e494f"
+  let sdk = "https://connect.rbcpayplan.com/sdk.js"
+  let platformCustomCssCart = ``
+  let platformCustomCssCartMouseoverColor = ``
+  let platformPlacementFormatCart = `BUTTON`
+  let platformCustomCssProduct = ``
+  let platformCustomCssProductMouseoverColor = ``
+  let platformPlacementFormatProduct = `BUTTON`
+  let skuFilter = ``
+  let skuFilterMode = `NONE`
+  let overrideProductButtonCSS = false;
+  let overrideCartButtonCSS = false;
+  let hostname = 'https://api.prod-rome.ue2.breadgateway.net';
+  let asLowAsEndpoint = hostname + '/api/experience/servicing/as-low-as';
+  let merchantId = 'dd4af124-5c62-4185-b6f4-47305f0ad362';
+  let programId = '82227f32-7e76-4c62-a89e-6b0e05be1570';
+  let ERROR_LABEL = '[Bread-Shopify] ';
+  let wasSetup = false;
+
+  let skuFilterList = skuFilter.split(",").map(function(item) {
+    return item.trim();
+  });
+
+  let script = document.createElement("script");
+  script.addEventListener("load", createButtons);
+  script.addEventListener("load", loadBreadALA);
+  script.setAttribute("defer", "defer");
+  script.setAttribute("src", sdk);
+  script.setAttribute("type", "text/javascript");
+  script.setAttribute("id", "bread-cart-sdk-script");
+  if (document.getElementById("bread-cart-sdk-script")) {
+    //Script can load from multiple app-blocks.  In that case, ensure we only load once.
+    return;
+  }
+  (document.getElementsByTagName("head")[0] || document.documentElement).appendChild(script)
+
+  //only works if the quantity element in the theme is named "quantity"
+  let quantityElements = document.getElementsByName("quantity")
+  let quantitySelector = undefined
+  if (quantityElements.length > 0) {
+    quantitySelector = quantityElements[0];
+  }
+
+  function getTenant() {
+    
+    return window.RBCPayPlan;
+    
+    return undefined;
+  }
+
+  
+
+  function loadBreadALA() {
+    let placements = [];
+    let breadAsLowAsContainers = document.getElementsByClassName("bread-as-low-as-container");
+    if (breadAsLowAsContainers.length == 0) {
+      return;
+    }
+
+    for (const container of breadAsLowAsContainers) {
+      if ("sku" in container.dataset) {
+        if (!skuCheck(container.dataset.sku)) {
+          continue;
+        }
+      }
+      let placement = {};
+      
+        let currency = "CAD";
+      
+      placement.allowCheckout = false;
+      placement.domID = container.id;
+      placement.order = {};
+      placement.order.items = [];
+
+      let price = Number(container.dataset.price);
+
+      placement.order.subTotal = {value: price, currency: currency};
+      placement.order.totalPrice = {value: price, currency: currency};
+      placement.order.currency = currency;
+      placement.order.totalShipping = {value: 0, currency: currency};
+      placement.order.totalTax = {value: 0, currency: currency};
+      placement.order.totalDiscounts = {value: 0, currency: currency};
+      placements.push(placement);
+    }
+    renderPlacements(placements, "");
+  }
+
+  function renderPlacements(placements, type) {
+    let setup = {integrationKey: integrationKey};
+    let Tenant = getTenant();
+    if (!wasSetup) {
+      Tenant.setup(setup);
+      Tenant.on('INSTALLMENT:APPLICATION_DECISIONED', onApproved);
+      Tenant.on('INSTALLMENT:APPLICATION_CHECKOUT', onCheckout);
+      if (type !== "") {
+        Tenant.on('INSTALLMENT:INITIALIZED', () => onRendered(getDomIds(), type));
+      }
+      Tenant.on('INSTALLMENT:ONETRUST_CONSENT', onConsent);
+      Tenant.on('INSTALLMENT:CUSTOMER_OPEN', onCustomerOpen);
+      Tenant.on('INSTALLMENT:CUSTOMER_CLOSE', onCustomerClose);
+      Tenant.registerPlacements(placements);
+      Tenant.__internal__.init();
+      wasSetup = true;
+    } else {
+      Tenant.registerPlacements(placements);
+    }
+  }
+
+  function getDomIds() {
+    let domIds = [];
+    let classNames = [
+        "bread-btn-class",
+    ];
+    for (const className of classNames) {
+      let elements = document.getElementsByClassName(className);
+      for (const element of elements) {
+        if ("id" in element) {
+          domIds.push(element.id);
+        }
+      }
+    }
+
+    let legacyIds = [
+      "bread-checkout-btn-product",
+      "bread-checkout-btn",
+      "placement-pdp",
+      "placement-cart",
+    ].filter(item => !domIds.includes(item));
+    for (const legacyId of legacyIds) {
+      if (document.querySelectorAll("#" + legacyId).length > 0) {
+        domIds.push(legacyId);
+      }
+    }
+    return domIds;
+  }
+
+  function skuCheck(sku) {
+    if (skuFilterMode == "NONE") {
+      return true;
+    } else if (skuFilterMode == "INCLUDE") {
+      return skuFilterList.includes(sku);
+    } else if (skuFilterMode == "EXCLUDE") {
+      return !skuFilterList.includes(sku);
+    }
+    return false;
+  }
+
+  function renderFromAsLowAs(placements, amount, type) {
+    AJAX({
+      type: 'GET',
+      url: asLowAsEndpoint + "?merchantId=" + merchantId + "&programId=" + programId + "&amount=" + amount,
+      contentType: 'application/json; charset=utf-8',
+      callback: function(data, err) {
+        if (err) {
+          console.log(err);
+        } else {
+          for (const placement of placements) {
+            let placementDom = document.getElementById(placement.domID);
+            placementDom.innerHTML = '';
+            let innerDiv = document.createElement('div');
+            innerDiv.className = 'bread-ignore-custom';
+            innerDiv.id = placement.domID;
+            placement.domID = "nothing";
+            let innerA = document.createElement('a');
+            innerA.className = 'bread-inner-a'
+            innerA.innerText = "As low as " + data.asLowAs.paymentAmountText["en-us"] + "/mo";
+            innerDiv.appendChild(innerA);
+            let css = '';
+            switch (type) {
+              case 'cart':
+                css = '.bread-inner-a { color: #5156ea; } .bread-inner-a:hover { color: #0f233f; }.bread-ignore-custom{' + platformCustomCssCart + '} .bread-ignore-custom:hover{' + platformCustomCssCartMouseoverColor + '}';
+                break;
+              case 'product':
+                css = '.bread-inner-a { color: #5156ea; } .bread-inner-a:hover { color: #0f233f; }.bread-ignore-custom{' + platformCustomCssProduct + '} .bread-ignore-custom:hover{' + platformCustomCssProductMouseoverColor + '}';
+                break;
+            }
+            let style = document.createElement('style');
+            style.innerText = css;
+            document.getElementsByTagName('head')[0].appendChild(style);
+
+            let setup = {integrationKey: integrationKey};
+            innerDiv.onclick = function() {
+              let Tenant = getTenant();
+              // manually load placement
+              if (!wasSetup) {
+                Tenant.setup(setup);
+                Tenant.setInitMode('manual');
+                Tenant.__internal__.setAutoRender(false);
+                Tenant.registerPlacements([placement]);
+                Tenant.on('INSTALLMENT:APPLICATION_DECISIONED', onApproved);
+                Tenant.on('INSTALLMENT:APPLICATION_CHECKOUT', onCheckout);
+                Tenant.on('INSTALLMENT:ONETRUST_CONSENT', onConsent);
+                Tenant.on('INSTALLMENT:CUSTOMER_OPEN', onCustomerOpen);
+                Tenant.on('INSTALLMENT:CUSTOMER_CLOSE', onCustomerClose);
+                Tenant.openExperienceForPlacement([placement]);
+                Tenant.__internal__.init();
+                wasSetup = true;
+              } else {
+                Tenant.registerPlacements([placement]);
+                Tenant.openExperienceForPlacement([placement]);
+              }
+            };
+            placementDom.appendChild(innerDiv);
+            updatePlacementFormat(innerDiv.id, "rendered", type, false);
+          }
+        }
+      }
+    });
+  }
+
+  function onCustomerOpen(location, opts) {
+    
+  }
+  function onCustomerClose(opts) {
+    
+  }
+  function onApproved(application) {}
+  function onCheckout(application) {}
+  function onConsent(data) {
+    let consentToTrack = {
+      analytics: false,
+      marketing: false,
+    };
+    for (const consent of data) {
+      switch (consent) {
+        case "C0001":
+          // strictly necessary
+          break;
+        case "C0002":
+          // performance cookies
+          consentToTrack.analytics = true;
+          break;
+        case "C0004":
+          // targetting cookies
+            consentToTrack.marketing = true;
+          break;
+      }
+    }
+
+    window.Shopify.loadFeatures( [ { name: 'consent-tracking-api', version: '0.1', }, ], error => {
+          if (error) {
+            console.error(error);
+          }
+          window.Shopify.customerPrivacy.setTrackingConsent(consentToTrack, () => console.log("shopify consent updated", consentToTrack));
+        },
+    );
+  }
+
+  function onRendered(domIds, type) {
+    
+  }
+
+  function configureCartButton() {
+    getCart(function(err, cart) {
+      if (err) {
+        return console.log(ERROR_LABEL + 'query for shopify cart produced err: ', err);
+      }
+
+      if (cart.item_count == 0) {
+        return console.log(ERROR_LABEL + 'cart is empty');
+      }
+
+      let domIds = getDomIds();
+      for (const item of cart.items) {
+        if (!skuCheck(item.sku)) {
+          for (const domId of domIds) {
+            document.getElementById(domId).innerHTML = "";
+            updatePlacementFormat(domId, "cart", "cart", true);
+          }
+          return;
+        }
+      }
+
+      let placements = [];
+      for (const domId of domIds) {
+        let placement = {};
+        placement.allowCheckout = false;
+        placement.domID = domId;
+        placement.order = {};
+        let orderItems = cart.items.map(shopifyItemsToBreadItems);
+
+        let currency = cart.currency;
+        orderItems = updateBreadItemsWithCurrency(orderItems, currency);
+        placement.order.items = orderItems;
+        placement.order.subTotal = {value: cart.total_price, currency: currency};
+        placement.order.totalPrice = {value: cart.total_price, currency: currency};
+        placement.order.currency = currency
+        placement.order.totalShipping = {value: 0, currency: currency}; //Not available in shopify cart object
+        placement.order.totalTax = {value: 0, currency: currency}; //Not available in shopify cart object
+        placement.order.totalDiscounts = {value: 0, currency: currency}; // some discounts that show up here are already applied to the subtotal -- ignore until shopify fixes
+        placements.push(placement);
+      }
+      if (overrideCartButtonCSS) {
+        renderFromAsLowAs(placements, Math.round(cart.total_price), "cart");
+      } else {
+        renderPlacements(placements, "cart");
+      }
+    });
+  };
+
+  function shopifyItemsToBreadItems(item) {
+    return {
+      "name": item.variant_options.length > 1 ? item.product_title + item.variant_title : item.product_title,
+      "sku": item.sku ? item.sku : "",
+      "unitPrice": item.price,
+      "shippingCost": 0,
+      "shippingDescription": "",
+      "unitTax": 0,
+      "quantity": item.quantity
+    };
+  };
+
+  function updateBreadItemsWithCurrency(items, currency) {
+    for (i=0; i<items.length; i++) {
+      let item = items[i];
+      item.currency = currency;
+      item.unitPrice = {currency: currency, value: item.unitPrice};
+      item.shippingCost = {currency: currency, value: item.shippingCost};
+      item.unitTax = {currency:currency, value: item.unitTax};
+
+      items[i] = item;
+    }
+
+    return items;
+  }
+
+  function getCart(cb) {
+    AJAX({
+      "url": "/cart.js",
+      "type": "GET",
+      "callback": function(cart, err) {
+        if (err) {
+          cb(err);
+        } else {
+          cb(null, cart);
+        }
+      }
+    });
+  };
+
+  function getQuantity() {
+    let quantity = 1;
+    if (quantitySelector) {
+      quantity = Number(quantitySelector.value);
+      if (Number.isNaN(quantity)) {
+        quantity = 1;
+      }
+    }
+    return quantity;
+  }
+
+  function configureProductButton() {
+
+    getCart(function(err, cart) {
+      if (err) {
+        return console.log(ERROR_LABEL + 'query for shopify cart produced err: ', err);
+      }
+
+      let currency = cart.currency
+
+      queryProductByHandleInUrl(function(product, err) {
+        if (err) {
+          return console.log(ERROR_LABEL + 'Query for product returned an error' + err);
+        }
+        
+        if (!product) {
+          console.log("Product not found");
+          return;
+        }
+        let vid = "";
+        if (product.variants.length > 0) {
+          // on initial page load, just take the first variant
+          renderPDPButton(product, product.variants[0], currency);
+          vid = product.variants[0].id;
+        }
+
+        let quantity = getQuantity();
+
+        if (product.variants.length > 1) {
+          // if there are more than 1 variant, set up interval to check when user updates selected variant and redo placements
+          let variantIntervalId = setInterval(function() {
+            //TODO deprecate this logic in favor of the else clause?
+            let newVidEl = document.querySelectorAll("select[name='id'] :checked");
+            if (newVidEl.length > 0) {
+              let newVid = newVidEl[0].getAttribute('value');
+              if (vid !== newVid) {
+                vid = newVid;
+                let variant = product.variants[variantIndexFromVid(product, vid)];
+                renderPDPButton(product, variant, currency);
+              }
+            } else {
+              let url = new URL(window.location);
+              let variantId = url.searchParams.get("variant");
+              let prevQuantity = quantity;
+              let variant = product.variants.find(function(v) {
+                return v.id == variantId;
+              });
+              if (!variant && !variantId) {
+                variant = product.variants[0];
+              }
+              quantity = getQuantity()
+              if (variant != undefined && vid != variantId) {
+                vid = variantId;
+                renderPDPButton(product, variant, currency);
+              } else if (prevQuantity != quantity) {
+                renderPDPButton(product, variant, currency)
+              }
+            }
+          }, 500);
+        } else {
+          let quantityIntervalId = setInterval(function() {
+            let prevQuantity = quantity;
+            quantity = getQuantity();
+            if (prevQuantity != quantity) {
+              renderPDPButton(product, product.variants[0], currency)
+            }
+          }, 500);
+        }
+      });
+
+    });
+    
+  };
+
+  function variantIndexFromVid(product, vid) {
+    for (let x = 0; x < product.variants.length; x++) {
+      if (product.variants[x].id == vid) return x;
+    }
+    return 0;
+  };
+
+  function renderPDPButton(product, variant, currency) {
+    let domIds = getDomIds();
+    if (!skuCheck(variant.sku)) {
+      for (const domId of domIds) {
+        document.getElementById(domId).innerHTML = "";
+        updatePlacementFormat(domId, "product", "product", true);
+      }
+      return;
+    }
+
+    let price = variant.price;
+    price *= getQuantity()
+
+    let placements = [];
+    for (const domId of domIds) {
+      console.log(domId)
+      document.getElementById(domId).innerHTML = "";
+      let placement = {};
+      placement.allowCheckout =  false;
+      placement.domID = domId;
+      placement.order = {};
+      placement.order.items = [mapProductToBreadItem(product, variant, currency)];
+
+      placement.order.subTotal = {value: price, currency: currency};
+      placement.order.totalPrice = {value: price, currency: currency};
+      placement.order.currency = currency;
+      placement.order.totalShipping = { value: 0, currency: currency }; //Not available in shopify product object
+      placement.order.totalTax =  { value: 0, currency: currency }; //Not available in shopify product object
+      placement.order.totalDiscounts =  { value: 0, currency: currency }; //Not available in shopify product object
+      placements.push(placement);
+    }
+    if (overrideProductButtonCSS) {
+      renderFromAsLowAs(placements, Math.round(price), "product");
+    } else {
+      renderPlacements(placements, "product");
+    }
+  }
+
+  function mapProductToBreadItem(product, variant, currency) {
+    return {
+      "name": [product.title, variant.title].join(", "),
+      "sku": variant.sku ? variant.sku : "",
+      "unitPrice": {currency: currency, value: variant.price},
+      "shippingCost": {currency: currency, value: 0},
+      "shippingDescription": "",
+      "unitTax": {currency: currency, value: 0},
+      "quantity": getQuantityValue(),
+      "currency": currency
+    };
+  }
+
+  function getQuantityValue() {
+    // Default to quantity of 1
+    let v = 1;
+    let q = document.querySelector('input[name="quantity"]');
+
+    if (q != null) {
+      v = parseInt(q.value, 10);
+    }
+    return v;
+  }
+
+  function queryProductByHandleInUrl(cb) {
+    let pathName = window.location.pathname;
+
+    //Remove trailing slash from pathname
+    pathName = pathName.slice(-1) === "/" ? pathName.slice(0,-1) : pathName;
+
+    let pieces = pathName.split("/");
+    let productName = pieces[pieces.length - 1];
+
+    AJAX({
+      "type": "GET",
+      "url": "/products/" + productName + ".js",
+      "callback": cb
+    });
+  };
+
+  
+  function createButtons() {
+    const sdkString =  "RBCPayPlan" ;
+    if (sdkString in window) {// SDK loaded
+      if (document.querySelectorAll("#placement-cart").length > 0 || Array.from(document.querySelectorAll("[id^='bread-checkout-btn']")).filter(item => !item.id.includes('product')).length > 0) {
+        // Stolen from https://stackoverflow.com/questions/64236128/script-tag-xhr-event-listener-for-monitoring-cart-activities-does-not-work-anymo/64241104#64241104
+        (function(ns, fetch) {
+          if (typeof fetch !== 'function') return;
+          ns.fetch = function() {
+            const response = fetch.apply(this, arguments);
+            response.then(res => {
+              if ([
+                `${window.location.origin}/cart/add`,
+                `${window.location.origin}/cart/update`,
+                `${window.location.origin}/cart/change`,
+                `${window.location.origin}/cart/clear`,
+              ].includes(res.url)) {
+                configureCartButton();
+              }
+            });
+            return response;
+          }
+        }(window, window.fetch))
+        configureCartButton();
+      }
+
+      if(document.querySelectorAll("#placement-pdp").length > 0 || document.querySelectorAll("[id^='bread-checkout-btn-product']").length > 0) {
+        configureProductButton();
+      }
+
+      // TODO would be nice to get all placements somehow and simply render afterwords
+      // i.e. get card placements, get product placements, get ALA placements -> render
+      // for now, manual override placements can't be displayed with auto rendered placements.  If this changes in the
+      // future, then do the TODO processing idea
+    }else {
+      console.log("SDK not loaded")
+      //TODO: log error to datadog
+    }
+  }
+
+  // AJAX implementation
+  function AJAX(options) {
+    let request = new XMLHttpRequest();
+    request.open(options.type, options.url, true);
+    if (options.type === "POST") {
+      request.setRequestHeader('Content-Type', options.contentType);
+    }
+
+    request.onload = function() {
+      if (request.status >= 200 && request.status < 400) {
+        // Success
+        let response = JSON.parse(request.responseText);
+        options.callback(response, null);
+      } else {
+        // Error
+        options.callback(null, request.responseText);
+      }
+    };
+
+    request.onerror = function() {
+      options.callback(null, "(AJAX) unable to reach " + options.url);
+    };
+
+    if (options.data) {
+      request.send(JSON.stringify(options.data));
+    } else {
+      request.send();
+    }
+  };
+
+})();

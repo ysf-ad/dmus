@@ -1,0 +1,70 @@
+(function(global){if(ShopifyAnalytics.meta.page.pageType!="product")return;function Points(){this.API_BASE_URL="https://boomapi.sealapps.com/api/v1/",this.VARIANTS_ARRAY=JSON.parse(document.querySelector("#bm_product_variants").textContent),this.CURRENT_VARIANTS=JSON.parse(document.querySelector("#bm_product_selected_or_first_available_variant").textContent),this.SHOP_METAFILE=JSON.parse(document.querySelector("#bm_product_metafields").textContent),this.shopId="",this.PRODUCT_TITLE_DOM="",this.DIVDOM="",this.productPointsDom="",this.POINTSFLASHDOM="",this.productPointsClass="",this.productPointsText="",this.OPENFLAG=1,this.ISACCESS=0,this.fontWeight="",this.fontColor="",this.fontValue="",this.fontSize="",this.flashStatus="",this.flashColor="",this.pointsMultiples=0,this.earnType=1,this.amount=0,this.presentPoints=0,this.points=0,this.variantPrice=this.CURRENT_VARIANTS.price/100,this.setTimeoutHandle=null,this.init()}function createSpan(params){let span=document.createElement("span");return params.class!=null&&span.setAttribute("class",params.class),params.text!=null&&(span.innerHTML=params.text),span}function createDiv(params){let div=document.createElement("div");return params.className!==void 0&&div.setAttribute("class",params.className),params.id!==void 0&&div.setAttribute("id",params.id),params.text!==void 0&&(div.innerHTML=params.text),div}Points.prototype={constructor:Points,init:function(){this.initSetting(),this.initStyle()},initSetting:function(){this.shopId=__st.a,this.shopName=Shopify.shop,!(!this.SHOP_METAFILE||+new Date/1e3-7200>this.SHOP_METAFILE)&&this.findProductTitleDom()},findProductTitleDom:function(){strClassName=".product__title, .product-single__title, .product-title, .grid-item .h2";let priceDomArr=document.querySelectorAll(strClassName);priceDomArr.length!=0&&(this.PRODUCT_TITLE_DOM=priceDomArr[0],this.getPointsStatus(),this.reloadProductPage())},reloadProductPage:function(){if(location.href.indexOf("variant=")!==-1){clearTimeout(this.setTimeoutHandle);let window_variant_id=Number(location.href.split("variant=")[1]);if(this.CURRENT_VARIANTS.id!==window_variant_id){for(let i=0;i<this.VARIANTS_ARRAY.length;i++)if(this.VARIANTS_ARRAY[i].id==window_variant_id){this.CURRENT_VARIANTS=this.VARIANTS_ARRAY[i],this.variantPrice=this.CURRENT_VARIANTS.price/100,this.getPointsStatus();break}}}this.setTimeoutHandle=setTimeout(()=>{this.reloadProductPage()},50)},getPointsStatus:function(){that=this,that.OPENFLAG==1&&(that.ISACCESS==1&&that.createPointsDom(),this.ajax({url:that.API_BASE_URL+"script/productPoints",data:{shopId:that.shopId,variantId:that.CURRENT_VARIANTS.id},success:function(res){if(console.log("===============\u4EA7\u54C1\u79EF\u5206\u8FD4\u56DE\u6570\u636E======="),console.log(res),res.code==200&&res.data!=null){let resData=res.data;if(resData.isDelete==1||resData.allStatus!=1||resData.status!=1||resData.pointsStatus!=1||resData.pointRuleStatus!=1){that.OPENFLAG=0;return}that.ISACCESS=1,that.fontWeight=resData.fontWeight,that.fontColor=resData.fontColor,that.fontValue=resData.fontValue,that.fontSize=resData.fontSize,that.pointsMultiples=resData.pointsMultiples,that.amount=resData.amount,that.presentPoints=resData.presentPoints,that.flashStatus=resData.flashStatus,that.flashColor=resData.flashColor,that.earnType=resData.earnType,that.createPointsDom()}}}))},createPointsDom:function(){if(this.earnType==2?this.points=this.presentPoints:this.pointsMultiples!=0?this.points=Math.floor(Math.floor(this.variantPrice/this.amount)*this.presentPoints*this.pointsMultiples):this.points=Math.floor(Math.floor(this.variantPrice/this.amount)*this.presentPoints),this.productPointsDom!=""){this.productPointsDom.textContent=this.fontValue.replace("{{points_amount}}",this.points);return}this.parentDivDom=createDiv({className:"bm_top_product_div"}),getComputedStyle(this.PRODUCT_TITLE_DOM).textAlign&&getComputedStyle(this.PRODUCT_TITLE_DOM).textAlign=="center"&&this.parentDivDom.setAttribute("style","align-items:center;justify-content:center;"),this.PRODUCT_TITLE_DOM.insertAdjacentElement("afterend",this.parentDivDom),this.DIVDOM=createDiv({className:"bm_div_product_points"}),this.parentDivDom.appendChild(this.DIVDOM),this.productPointsClass="bm_product_points",this.productPointsDom=createSpan({class:this.productPointsClass,text:this.fontValue.replace("{{points_amount}}",this.points)}),this.productPointsDom.setAttribute("style","font-weight:"+this.fontWeight+";color:"+this.fontColor+";padding:2px;font-size:"+this.fontSize+"px;margin:5px 0;cursor:pointer;"),this.DIVDOM.appendChild(this.productPointsDom),this.POINTSFLASHDOM=createDiv({className:"points-flash"}),this.flashStatus==1?this.POINTSFLASHDOM.setAttribute("style","background-color: "+this.flashColor+";"):this.POINTSFLASHDOM.setAttribute("style","visibility: hidden;"),this.DIVDOM.appendChild(this.POINTSFLASHDOM),this.productPointsDom.onclick=function(){if(!window.__BooM)return;let BoomDom=window.__BooM;BoomDom.LAUNCHER_STATE==1&&BoomDom.startBtn.onclick()}},initStyle:function(){let textStyle=`
+            .bm_product_points{font-weight:600;color:#000000;padding:2px;font-size:15px;margin:5px 0;cursor:pointer;}
+            .bm_div_product_points{
+                position: relative;
+                line-height: 1;
+                display: inline-block;
+            }
+            .bm_top_product_div{
+                display:flex;
+            }
+            .points-flash {
+                content: '';
+                position: absolute;
+                background-color: #FFFFFF80;
+                -webkit-transform: rotate(45deg);
+                transform: rotate(45deg);
+                -webkit-animation: blink 1s ease-in 1s infinite;
+                animation: blink 0.8s ease-in 1s infinite;
+                display: inline-block;
+                width: 5px;
+                height: 100%;
+            }
+            @-webkit-keyframes blink {
+                from {
+                    left: 0;
+                    top: 0;
+                }
+    
+                to {
+                    left: 100%;
+                    top: 0;
+                }
+            }
+    
+            @-o-keyframes blink {
+                from {
+                    left: 0;
+                    top: 0;
+                }
+    
+                to {
+                    left: 100%;
+                    top: 0;
+                }
+            }
+    
+            @-moz-keyframes blink {
+                from {
+                    left: 0;
+                    top: 0;
+                }
+    
+                to {
+                    left: 100%;
+                    top: 0;
+                }
+            }
+    
+            @keyframes blink {
+                from {
+                    left: 0;
+                    top: 0;
+                }
+    
+                to {
+                    left: 100%;
+                    top: 0;
+                }
+            }`,style=document.createElement("style"),text=document.createTextNode(textStyle);style.appendChild(text),document.body.appendChild(style)},ajax:function(options){options=options||{},options.type=(options.type||"POST").toUpperCase(),options.dataType=options.dataType||"json",options.timeout=options.timeout||5e3;var params=formatParams(options.data),xhr;window.XMLHttpRequest?xhr=new XMLHttpRequest:window.ActiveObject&&(xhr=new ActiveXobject("Microsoft.XMLHTTP")),options.type=="GET"?(xhr.open("GET",options.url+"?"+params,!0),xhr.responseType=options.dataType,xhr.send(null)):options.type=="POST"&&(xhr.open("post",options.url,!0),xhr.responseType=options.dataType,xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded"),xhr.send(params)),setTimeout(function(){xhr.readySate!=4&&xhr.abort()},options.timeout),xhr.onreadystatechange=function(){if(xhr.readyState==4){var status=xhr.status;status>=200&&status<300||status==304?options.success&&options.success(xhr.response):options.error&&options.error(status)}};function formatParams(data){var arr=[];for(var name in data)arr.push(encodeURIComponent(name)+"="+encodeURIComponent(data[name]));return arr.push(("v="+Math.random()).replace(".","")),arr.join("&")}}};let __POINTS=new Points;return global.__POINTS==__POINTS})(window);
+//# sourceMappingURL=/cdn/shop/t/7/assets/product_boom_points.js.map?v=57296278499882158251657293487

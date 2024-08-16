@@ -1,0 +1,101 @@
+(function() {
+
+   window.loadScript = function(url, callback) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    // If the browser is Internet Explorer
+    if (script.readyState){
+      script.onreadystatechange = function() {
+        if (script.readyState == "loaded" || script.readyState == "complete") {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+      // For any other browser
+    } else {
+      script.onload = function() {
+        callback();
+      };
+    }
+    script.src = url;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  };  
+
+
+var GetCorePage = function($) {
+
+  if( $("#customform_data").length ){
+    $("#customform_data").attr('data-id', "be16ad7885362ce1cc4fe0")
+      if($("#customform_data iframe").length==0) {
+          $("#customform_data").append('<iframe src="https://contactform.hulkapps.com/corepage/contact?id=be16ad7885362ce1cc4fe0" id="frame_be16ad7885362ce1cc4fe0" frameborder="0" width="100%">');
+          frame_resize();
+      }
+  }
+
+  $(document).ready(function($) {
+    if($('body').find("#hulk_customform_button").length > 0){
+      $("#hulk_customform_button").attr('data-id', "be16ad7885362ce1cc4fe0")
+    }
+    
+    $(document).on('click', '.hulk_form_as_popup', function(){
+      var id = $("#hulk_customform_button").attr('data-id')
+      $(".hulk-modal-content").html('<iframe src="https://contactform.hulkapps.com/corepage/contact?id=be16ad7885362ce1cc4fe0" id="framepopup_be16ad7885362ce1cc4fe0" frameborder="0" width="100%">')
+      $('.confirm_popup, .confirm-backdrop').show();
+      frame_resize();
+    });
+
+    $(document).on('click', '.hulk-close-btn', function(){ 
+      $('.confirm_popup, .confirm-backdrop').hide();
+      $('body').removeClass('body-fixed');
+    });
+  });
+
+  function hulkAddCss(fileName) {
+    var head = document.head;
+    var link = document.createElement("link");
+    link.type = "text/css";
+    link.rel = "stylesheet";
+    link.href = fileName;
+    head.appendChild(link);
+  }
+
+  // Resize the iframes when the window is resized
+  $( window ).resize( function () {
+    frame_resize();
+  }).resize();
+
+  function frame_resize(){
+    var iframes = $( "#customform_data iframe, #hulk_contact iframe" );
+    iframes.each( function() {
+      var width = $( this ).parent().width();
+      $( this ).width( width );
+      var divId = $(this).attr('id');
+      var zino_resize = function (event) {
+          if (event.origin !== "https://contactform.hulkapps.com") {
+              return;
+          }
+          var zino_iframe = document.getElementById(divId);
+          if (zino_iframe) {
+              zino_iframe.style.height = event.data + "px";
+          }
+      };
+      if (window.addEventListener) {
+          window.addEventListener("message", zino_resize, false);
+      } else if (window.attachEvent) {
+          window.attachEvent("onmessage", zino_resize);
+      }
+    });
+  }
+}
+
+if ((typeof(jQuery) == 'undefined') || (parseInt(jQuery.fn.jquery) == 3 && parseFloat(jQuery.fn.jquery.replace(/^1\./,"")) < 2.1)) {
+      // We'll get our jQuery from Google APIs
+      loadScript('//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js', function() {       
+          jQuery321 = jQuery.noConflict(true);
+          GetCorePage(jQuery321);
+      });
+}else{
+  GetCorePage(jQuery);
+}
+
+})();
